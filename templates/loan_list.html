@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Loan Applications List</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        .status-pending { color: orange; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>Loan Applications Record</h2>
+    <p>Logged in as: {{ session['name'] }} | <a href="/dashboard">Dashboard</a> | <a href="/loan/new">+ New Application</a></p>
+    <hr>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Applicant</th>
+                <th>Income ($)</th>
+                <th>Loan Amount ($)</th>
+                <th>Status</th>
+                <th>Created Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for loan in loans %}
+            <tr>
+                <td>{{ loan.id }}</td>
+                <td>{{ loan.applicant_name }}</td>
+                <td>{{ "{:,.2f}".format(loan.income) }}</td>
+                <td>{{ "{:,.2f}".format(loan.loan_amount) }}</td>
+                <td class="status-pending">{{ loan.approval_status }}</td>
+                <td>{{ loan.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align: center;">No loan applications found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

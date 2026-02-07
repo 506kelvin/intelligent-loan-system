@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan AI System</title>
+</head>
+<body>
+    <h1>System Status: <span style="color: green;">Online</span></h1>
+    <hr>
+    <h3>Intelligent Loan Management System</h3>
+    <p>The backend pipeline is successfully connected to the database.</p>
+    
+    {% if session.get('name') %}
+        <p>Welcome back, <strong>{{ session['name'] }}</strong>!</p>
+        <a href="/logout">Logout</a>
+    {% else %}
+        <p><a href="/login">Click here to Login</a></p>
+    {% endif %}
+</body>
+</html>
