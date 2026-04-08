@@ -2,49 +2,442 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sacco - Record Repayment</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Repayment — LoanAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --cream: #F5F0E8; --ink: #1A1612; --gold: #C9A96E; --gold-light: #E8D5B0;
+            --warm-gray: #8C8078; --surface: #FDFAF5; --muted-border: rgba(26,22,18,0.1);
+            --success: #4A9B7F; --danger: #C0624A;
+        }
+
+        body {
+            min-height: 100vh; background: var(--surface);
+            font-family: 'DM Sans', sans-serif; color: var(--ink);
+            display: flex; flex-direction: column;
+            position: relative; overflow-x: hidden;
+        }
+
+        body::before {
+            content: ''; position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 60% 40% at 50% 0%, rgba(201,169,110,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 30% at 90% 85%, rgba(74,155,127,0.04) 0%, transparent 55%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: relative; z-index: 10; background: var(--ink);
+            padding: 0 3rem; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            animation: slideDown 0.7s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        nav::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.4; }
+        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .nav-brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-mark { width: 30px; height: 30px; border: 1.5px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .logo-mark::after { content: ''; width: 9px; height: 9px; background: var(--gold); border-radius: 50%; }
+        .brand-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--cream); letter-spacing: 0.05em; }
+        .brand-name span { color: var(--gold); }
+        .btn-nav { padding: 0.45rem 1.1rem; background: transparent; border: 1px solid rgba(201,169,110,0.4); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500; color: var(--gold); text-decoration: none; letter-spacing: 0.06em; text-transform: uppercase; transition: background 0.2s, border-color 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+        .btn-nav:hover { background: rgba(201,169,110,0.1); border-color: var(--gold); }
+        .btn-nav svg { width: 13px; height: 13px; }
+
+        /* ── PAGE ── */
+        .page { flex: 1; position: relative; z-index: 1; padding: 3.5rem 2rem 5rem; display: flex; flex-direction: column; align-items: center; }
+
+        /* ── HEADER ── */
+        .page-header { text-align: center; margin-bottom: 2.5rem; animation: fadeUp 0.7s 0.2s cubic-bezier(0.16,1,0.3,1) both; }
+        .page-eyebrow { font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.16em; color: var(--warm-gray); margin-bottom: 0.6rem; }
+        .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 300; color: var(--ink); margin-bottom: 1rem; }
+        .page-title em { font-style: italic; color: var(--gold); }
+        .divider-gold { width: 36px; height: 2px; background: var(--gold); margin: 0 auto; }
+
+        /* ── LAYOUT ── */
+        .layout { display: flex; width: 100%; max-width: 860px; gap: 3rem; align-items: flex-start; position: relative; z-index: 1; }
+
+        /* ── INFO PANEL ── */
+        .info-panel { flex: 0 0 220px; padding-top: 0.5rem; animation: fadeUp 0.8s 0.3s cubic-bezier(0.16,1,0.3,1) both; }
+        .info-eyebrow { font-size: 0.7rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.13em; color: var(--warm-gray); margin-bottom: 0.75rem; }
+        .info-title { font-family: 'Cormorant Garamond', serif; font-size: 2.1rem; font-weight: 300; line-height: 1.15; color: var(--ink); margin-bottom: 1.1rem; }
+        .info-title em { font-style: italic; color: var(--gold); }
+        .info-divider { width: 32px; height: 2px; background: var(--gold); margin-bottom: 1.1rem; }
+        .info-desc { font-size: 0.85rem; color: var(--warm-gray); line-height: 1.7; margin-bottom: 2rem; }
+
+        /* Alert box */
+        .info-alert {
+            padding: 0.9rem 1rem;
+            background: rgba(192,98,74,0.06); border: 1px solid rgba(192,98,74,0.18);
+            border-radius: 8px; margin-bottom: 1.25rem;
+        }
+        .info-alert-title { font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--danger); margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.4rem; }
+        .info-alert-title svg { width: 12px; height: 12px; flex-shrink: 0; }
+        .info-alert-text { font-size: 0.78rem; color: var(--warm-gray); line-height: 1.5; }
+
+        .info-steps { display: flex; flex-direction: column; gap: 1rem; }
+        .step { display: flex; align-items: flex-start; gap: 0.75rem; }
+        .step-num { flex-shrink: 0; width: 22px; height: 22px; border: 1px solid rgba(201,169,110,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 500; color: var(--gold); margin-top: 2px; }
+        .step-text { font-size: 0.8rem; color: var(--warm-gray); line-height: 1.5; }
+        .step-text strong { display: block; font-size: 0.82rem; color: var(--ink); font-weight: 500; margin-bottom: 0.1rem; }
+
+        /* ── CARD ── */
+        .card { flex: 1; background: #fff; border: 1px solid var(--muted-border); border-radius: 14px; box-shadow: 0 4px 48px rgba(26,22,18,0.07); position: relative; overflow: hidden; animation: fadeUp 0.8s 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold)); }
+
+        /* ── FORM SECTIONS ── */
+        .form-section { padding: 2rem 2.5rem; }
+        .form-section + .form-section { border-top: 1px solid var(--muted-border); }
+        .section-label { display: flex; align-items: center; gap: 0.65rem; margin-bottom: 1.5rem; }
+        .section-icon { width: 30px; height: 30px; background: rgba(201,169,110,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .section-icon svg { width: 14px; height: 14px; color: var(--gold); }
+        .section-title { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 600; color: var(--ink); }
+
+        /* ── GRID ── */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+        .form-grid .full { grid-column: 1 / -1; }
+
+        /* ── FIELDS ── */
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 0.7rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.11em; color: var(--warm-gray); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.3rem; }
+        .required-dot { width: 5px; height: 5px; background: var(--gold); border-radius: 50%; display: inline-block; }
+        .field-hint { margin-top: 0.4rem; font-size: 0.72rem; color: var(--warm-gray); display: flex; align-items: center; gap: 0.35rem; }
+        .field-hint svg { width: 11px; height: 11px; opacity: 0.55; flex-shrink: 0; }
+
+        .input-wrap { position: relative; }
+        .input-icon { position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); pointer-events: none; color: rgba(140,128,120,0.5); display: flex; align-items: center; }
+        .input-icon svg { width: 14px; height: 14px; }
+        .input-prefix { position: absolute; left: 2.6rem; top: 50%; transform: translateY(-50%); font-size: 0.78rem; color: var(--warm-gray); pointer-events: none; font-weight: 500; border-right: 1px solid var(--muted-border); padding-right: 0.55rem; line-height: 1; }
+
+        input, select {
+            width: 100%; padding: 0.82rem 1rem 0.82rem 2.6rem;
+            background: var(--surface); border: 1px solid rgba(26,22,18,0.12);
+            border-radius: 6px; font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem; color: var(--ink); outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            -webkit-appearance: none; appearance: none;
+        }
+        input.has-prefix { padding-left: 4.5rem; }
+        input::placeholder { color: rgba(140,128,120,0.4); }
+        input:focus, select:focus { background: #fff; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,169,110,0.1); }
+        input[type="date"] { cursor: pointer; }
+
+        .input-line { position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--gold); transition: width 0.3s ease; border-radius: 0 0 6px 6px; }
+        .form-group:focus-within .input-line { width: 100%; }
+
+        .select-wrap { position: relative; }
+        .select-chevron { position: absolute; right: 0.9rem; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--warm-gray); display: flex; }
+        .select-chevron svg { width: 14px; height: 14px; }
+        select { padding-right: 2.5rem; cursor: pointer; }
+
+        /* ── LIVE PREVIEW STRIP ── */
+        .preview-strip {
+            margin: 0 2.5rem;
+            padding: 1rem 1.4rem;
+            background: rgba(201,169,110,0.06); border: 1px solid rgba(201,169,110,0.2);
+            border-radius: 8px; display: none;
+            align-items: flex-start; gap: 1.5rem; flex-wrap: wrap;
+        }
+        .preview-strip.visible { display: flex; }
+        .preview-item { display: flex; flex-direction: column; gap: 0.15rem; flex: 1; min-width: 110px; }
+        .preview-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--warm-gray); }
+        .preview-value { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); }
+        .preview-value.amount { color: var(--success); }
+        .preview-div { width: 1px; background: rgba(201,169,110,0.25); align-self: stretch; flex-shrink: 0; }
+
+        /* ── AUTH FOOTER ── */
+        .auth-footer {
+            padding: 1.75rem 2.5rem;
+            background: rgba(26,22,18,0.02); border-top: 1px solid var(--muted-border);
+        }
+
+        .auth-badge {
+            display: flex; align-items: center; gap: 0.75rem;
+            padding: 0.9rem 1.1rem;
+            background: rgba(26,22,18,0.04); border: 1px solid rgba(26,22,18,0.08);
+            border-radius: 8px; margin-bottom: 1.25rem;
+        }
+        .auth-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--ink), #3a3028);
+            border: 1px solid rgba(201,169,110,0.25);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; font-weight: 600;
+            color: var(--gold); flex-shrink: 0;
+        }
+        .auth-info {}
+        .auth-name { font-size: 0.875rem; font-weight: 500; color: var(--ink); }
+        .auth-role { font-size: 0.72rem; color: var(--warm-gray); }
+        .auth-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); margin-left: auto; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+
+        .auth-actions { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+        .auth-disclaimer { font-size: 0.72rem; color: var(--warm-gray); display: flex; align-items: center; gap: 0.35rem; max-width: 280px; line-height: 1.4; }
+        .auth-disclaimer svg { width: 12px; height: 12px; flex-shrink: 0; opacity: 0.5; }
+
+        .btn-post {
+            padding: 0.95rem 2.2rem; background: var(--ink); color: var(--cream);
+            border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif;
+            font-size: 0.875rem; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase;
+            cursor: pointer; position: relative; overflow: hidden;
+            transition: background 0.2s, transform 0.1s; display: flex; align-items: center; gap: 0.5rem; white-space: nowrap;
+        }
+        .btn-post:hover { background: #2D2820; }
+        .btn-post:active { transform: scale(0.98); }
+        .btn-post svg { width: 15px; height: 15px; }
+        .btn-shimmer { position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent); transform: skewX(-20deg); animation: shimmer 3.5s 2s infinite; }
+        @keyframes shimmer { 0%{left:-100%} 100%{left:200%} }
+
+        /* page footer */
+        footer { position: relative; z-index: 1; padding: 1.5rem 3rem; border-top: 1px solid var(--muted-border); display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--warm-gray); }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 720px) {
+            nav { padding: 0 1.25rem; }
+            .page { padding: 2rem 1rem 3rem; }
+            .layout { flex-direction: column; gap: 2rem; }
+            .info-panel { flex: none; width: 100%; }
+            .info-steps, .info-alert { display: none; }
+            .form-section { padding: 1.5rem 1.25rem; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-grid .full { grid-column: 1; }
+            .preview-strip { margin: 0 1.25rem; }
+            .auth-footer { padding: 1.5rem 1.25rem; }
+            .auth-actions { flex-direction: column; align-items: stretch; }
+            .btn-post { justify-content: center; }
+            footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1.25rem; }
+        }
+    </style>
 </head>
 <body>
-<div class="admin-container">
-    <div class="teller-header">
-        <h2>Sacco Operations: Post Loan Repayment</h2>
-        <p>Internal Ledger Entry Form</p>
+
+    <nav>
+        <a href="{{ url_for('dashboard') }}" class="nav-brand">
+            <div class="logo-mark"></div>
+            <span class="brand-name">Loan<span>AI</span></span>
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn-nav">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            Dashboard
+        </a>
+    </nav>
+
+    <div class="page">
+
+        <div class="page-header">
+            <p class="page-eyebrow">SACCO Operations</p>
+            <h1 class="page-title">Post Loan <em>Repayment</em></h1>
+            <div class="divider-gold"></div>
+        </div>
+
+        <div class="layout">
+
+            <!-- Info panel -->
+            <div class="info-panel">
+                <p class="info-eyebrow">Teller Entry</p>
+                <h2 class="info-title">Ledger <em>posting.</em></h2>
+                <div class="info-divider"></div>
+                <p class="info-desc">Record a cash or bank payment against a member's active loan account. This entry will be posted directly to the internal ledger.</p>
+
+                <div class="info-alert">
+                    <p class="info-alert-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                        Irreversible Action
+                    </p>
+                    <p class="info-alert-text">Posted entries cannot be edited. Verify all details before confirming.</p>
+                </div>
+
+                <div class="info-steps">
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-text"><strong>Select Account</strong>Choose the member loan account to credit.</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-text"><strong>Set Value Date</strong>Enter the date funds were received at the branch.</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-text"><strong>Confirm &amp; Post</strong>Authorise the entry with your credentials.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form card -->
+            <div class="card">
+                <form method="POST">
+
+                    <!-- Section 1: Account -->
+                    <div class="form-section">
+                        <div class="section-label">
+                            <div class="section-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            </div>
+                            <span class="section-title">Member Account</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="loan_id"><span class="required-dot"></span> Select Loan Account</label>
+                            <div class="select-wrap input-wrap">
+                                <span class="input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+                                <select id="loan_id" name="loan_id" required>
+                                    <option value="" disabled selected>— Search by Member ID or Name —</option>
+                                    {% for loan in loans %}
+                                    <option value="{{ loan.loan_id }}"
+                                            data-balance="{{ loan.remaining_balance if loan.remaining_balance else loan.loan_amount }}"
+                                            data-name="{{ loan.loan_name }}">
+                                        MEM-{{ loan.member_number }} · {{ loan.loan_name }} · KES {{ "{:,.0f}".format(loan.remaining_balance if loan.remaining_balance else loan.loan_amount) }} bal.
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <span class="select-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+                                <div class="input-line"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Entry details -->
+                    <div class="form-section">
+                        <div class="section-label">
+                            <div class="section-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            </div>
+                            <span class="section-title">Payment Entry</span>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="payment_date"><span class="required-dot"></span> Value Date</label>
+                                <div class="input-wrap">
+                                    <span class="input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>
+                                    <input type="date" id="payment_date" name="payment_date" required>
+                                    <div class="input-line"></div>
+                                </div>
+                                <p class="field-hint">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                    Date payment was received at branch.
+                                </p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="actual_payment"><span class="required-dot"></span> Amount Collected</label>
+                                <div class="input-wrap">
+                                    <span class="input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></span>
+                                    <span class="input-prefix">KES</span>
+                                    <input type="number" id="actual_payment" name="actual_payment" step="0.01" placeholder="0.00" class="has-prefix" min="0" required>
+                                    <div class="input-line"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live preview strip -->
+                    <div class="preview-strip" id="preview-strip">
+                        <div class="preview-item">
+                            <span class="preview-label">Account</span>
+                            <span class="preview-value" id="pv-account" style="font-size:0.95rem;">—</span>
+                        </div>
+                        <div class="preview-div"></div>
+                        <div class="preview-item">
+                            <span class="preview-label">Current Balance</span>
+                            <span class="preview-value" id="pv-balance">—</span>
+                        </div>
+                        <div class="preview-div"></div>
+                        <div class="preview-item">
+                            <span class="preview-label">Amount Posted</span>
+                            <span class="preview-value amount" id="pv-amount">—</span>
+                        </div>
+                        <div class="preview-div"></div>
+                        <div class="preview-item">
+                            <span class="preview-label">Est. After</span>
+                            <span class="preview-value" id="pv-after">—</span>
+                        </div>
+                    </div>
+
+                    <!-- Auth footer -->
+                    <div class="auth-footer">
+                        <div class="auth-badge">
+                            <div class="auth-avatar" id="auth-avatar">{{ session['username'][0] | upper if session['username'] else 'T' }}</div>
+                            <div class="auth-info">
+                                <p class="auth-name">{{ session['username'] }}</p>
+                                <p class="auth-role">Authorised Teller · Active Session</p>
+                            </div>
+                            <div class="auth-dot"></div>
+                        </div>
+
+                        <div class="auth-actions">
+                            <p class="auth-disclaimer">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                                Entry will be posted under your credentials and cannot be reversed.
+                            </p>
+                            <button type="submit" class="btn-post">
+                                <span class="btn-shimmer"></span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                                Confirm &amp; Post to Ledger
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
     </div>
 
-    <form method="POST" class="teller-form">
-        <div class="form-section">
-            <label>Select Member Account:</label>
-            <select name="loan_id" class="form-control select2" required>
-                <option value="" disabled selected>-- Search by Member ID or Name --</option>
-                {% for loan in loans %}
-                    <option value="{{ loan.loan_id }}">
-                        MEM-{{ loan.member_number }} | {{ loan.loan_name }} (Current Bal: KES {{ "{:,.2f}".format(loan.remaining_balance if loan.remaining_balance else loan.loan_amount) }})
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
+    <footer>
+        <span>© 2025 LoanAI · All rights reserved</span>
+        <span>SACCO Operations · Teller Entry</span>
+    </footer>
 
-        <div class="form-row">
-            <div class="col">
-                <label>Posting Date (Value Date):</label>
-                <input type="date" name="payment_date" class="form-control" required>
-                <small>Date payment was received at the branch.</small>
-            </div>
-            <div class="col">
-                <label>Amount Collected (KES):</label>
-                <input type="number" name="actual_payment" step="0.01" class="form-control amount-input" placeholder="0.00" required>
-            </div>
-        </div>
+    <script>
+        const loanSelect    = document.getElementById('loan_id');
+        const amountInput   = document.getElementById('actual_payment');
+        const strip         = document.getElementById('preview-strip');
+        const pvAccount     = document.getElementById('pv-account');
+        const pvBalance     = document.getElementById('pv-balance');
+        const pvAmount      = document.getElementById('pv-amount');
+        const pvAfter       = document.getElementById('pv-after');
 
-        <div class="auth-box">
-            <p><strong>Staff Authorization:</strong> {{ session['username'] }}</p>
-            <button type="submit" class="btn-post">Confirm & Post to Ledger</button>
-        </div>
-        
-        <div class="form-footer">
-            <a href="{{ url_for('dashboard') }}">Return to Admin Dashboard</a>
-        </div>
-    </form>
-</div>
+        function fmt(n) {
+            return 'KES ' + Number(n).toLocaleString('en-KE', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+
+        function update() {
+            const opt     = loanSelect.options[loanSelect.selectedIndex];
+            const balance = parseFloat(opt?.getAttribute('data-balance')) || 0;
+            const name    = opt?.getAttribute('data-name') || '';
+            const amount  = parseFloat(amountInput.value) || 0;
+            const hasLoan = loanSelect.value && loanSelect.value !== '';
+
+            if (hasLoan || amount > 0) {
+                strip.classList.add('visible');
+                pvAccount.textContent = hasLoan ? (name || '—') : '—';
+                pvBalance.textContent = hasLoan ? fmt(balance) : '—';
+                pvAmount.textContent  = amount > 0 ? fmt(amount) : '—';
+                if (hasLoan && amount > 0) {
+                    const after = Math.max(balance - amount, 0);
+                    pvAfter.textContent = fmt(after);
+                    pvAfter.style.color = after === 0 ? 'var(--success)' : 'var(--ink)';
+                } else {
+                    pvAfter.textContent = '—';
+                }
+            } else {
+                strip.classList.remove('visible');
+            }
+        }
+
+        loanSelect.addEventListener('change', update);
+        amountInput.addEventListener('input', update);
+
+        // Set today as default date
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('payment_date').value = today;
+    </script>
+
 </body>
 </html>

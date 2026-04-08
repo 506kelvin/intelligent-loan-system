@@ -30,12 +30,7 @@
         }
 
         /* ── NAV ── */
-        nav {
-            position: relative; z-index: 10; background: var(--ink);
-            padding: 0 3rem; height: 68px;
-            display: flex; align-items: center; justify-content: space-between;
-            animation: slideDown 0.7s cubic-bezier(0.16,1,0.3,1) both;
-        }
+        nav { position: relative; z-index: 10; background: var(--ink); padding: 0 3rem; height: 68px; display: flex; align-items: center; justify-content: space-between; animation: slideDown 0.7s cubic-bezier(0.16,1,0.3,1) both; }
         nav::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.4; }
         @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
@@ -45,32 +40,17 @@
         .brand-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--cream); letter-spacing: 0.05em; }
         .brand-name span { color: var(--gold); }
 
-        .nav-center {
-            position: absolute; left: 50%; transform: translateX(-50%);
-            display: flex; align-items: center; gap: 0.5rem;
-        }
-
-        .nav-clock-pill {
-            display: flex; align-items: center; gap: 0.6rem;
-            padding: 0.38rem 1rem;
-            border: 1px solid rgba(201,169,110,0.2);
-            border-radius: 100px;
-            font-size: 0.78rem; color: rgba(245,240,232,0.55);
-            letter-spacing: 0.03em;
-        }
-
+        .nav-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; }
+        .nav-clock-pill { display: flex; align-items: center; gap: 0.6rem; padding: 0.38rem 1rem; border: 1px solid rgba(201,169,110,0.2); border-radius: 100px; font-size: 0.78rem; }
         .nav-clock-pill .date-part { color: rgba(245,240,232,0.4); }
         .nav-clock-pill .sep { color: rgba(201,169,110,0.35); margin: 0 0.1rem; }
         .nav-clock-pill .time-part { color: var(--gold); font-weight: 500; font-variant-numeric: tabular-nums; }
 
         .nav-right { display: flex; align-items: center; gap: 0.5rem; }
-
         .btn-nav-ghost { padding: 0.42rem 1rem; background: transparent; border: 1px solid rgba(201,169,110,0.25); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; color: rgba(245,240,232,0.65); text-decoration: none; letter-spacing: 0.05em; transition: all 0.2s; white-space: nowrap; }
         .btn-nav-ghost:hover { background: rgba(201,169,110,0.08); border-color: rgba(201,169,110,0.5); color: var(--cream); }
-
         .btn-nav-gold { padding: 0.42rem 1rem; background: rgba(201,169,110,0.12); border: 1px solid rgba(201,169,110,0.45); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; color: var(--gold); text-decoration: none; letter-spacing: 0.05em; transition: all 0.2s; white-space: nowrap; }
         .btn-nav-gold:hover { background: rgba(201,169,110,0.2); border-color: var(--gold); }
-
         .btn-nav-logout { padding: 0.42rem 1rem; background: transparent; border: 1px solid rgba(245,240,232,0.12); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; color: rgba(245,240,232,0.38); text-decoration: none; letter-spacing: 0.05em; transition: all 0.2s; }
         .btn-nav-logout:hover { background: rgba(255,255,255,0.04); color: rgba(245,240,232,0.7); border-color: rgba(245,240,232,0.25); }
 
@@ -79,28 +59,15 @@
 
         /* ── GREETING ── */
         .greeting-block { margin-bottom: 2.5rem; animation: fadeUp 0.8s 0.25s cubic-bezier(0.16,1,0.3,1) both; }
-
         .greeting-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
-
-        .greeting-left {}
-
         .greeting-eyebrow { font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.16em; color: var(--gold); margin-bottom: 0.5rem; }
-
         .time-salutation { font-size: 0.82rem; color: var(--warm-gray); margin-bottom: 0.35rem; }
         .time-salutation strong { color: var(--ink); font-weight: 500; }
-
         .greeting-name { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 5vw, 3.2rem); font-weight: 300; line-height: 1.1; color: var(--ink); margin-bottom: 1rem; }
         .greeting-name em { font-style: italic; color: var(--gold); }
-
         .role-badge { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.75rem; font-weight: 500; color: var(--warm-gray); background: #fff; border: 1px solid var(--muted-border); border-radius: 100px; padding: 0.3rem 0.9rem; letter-spacing: 0.04em; text-transform: capitalize; }
         .role-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
-
-        /* Date card in greeting */
-        .date-card {
-            background: #fff; border: 1px solid var(--muted-border); border-radius: 12px;
-            padding: 1.1rem 1.5rem; text-align: right; min-width: 190px;
-            box-shadow: 0 2px 16px rgba(26,22,18,0.05);
-        }
+        .date-card { background: #fff; border: 1px solid var(--muted-border); border-radius: 12px; padding: 1.1rem 1.5rem; text-align: right; min-width: 190px; box-shadow: 0 2px 16px rgba(26,22,18,0.05); }
         .date-card-day { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 300; color: var(--ink); line-height: 1; }
         .date-card-month { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.13em; color: var(--warm-gray); margin-top: 0.15rem; }
         .date-card-time { font-size: 1rem; font-weight: 500; color: var(--gold); margin-top: 0.5rem; font-variant-numeric: tabular-nums; }
@@ -109,11 +76,7 @@
         .divider { height: 1px; background: linear-gradient(90deg, var(--muted-border) 0%, transparent 80%); margin: 2.5rem 0; }
 
         /* ── STATS ── */
-        .stats-row {
-            display: flex; gap: 0; background: #fff; border: 1px solid var(--muted-border);
-            border-radius: 12px; overflow: hidden; margin-bottom: 2.5rem;
-            animation: fadeUp 0.7s 0.35s cubic-bezier(0.16,1,0.3,1) both;
-        }
+        .stats-row { display: flex; gap: 0; background: #fff; border: 1px solid var(--muted-border); border-radius: 12px; overflow: hidden; margin-bottom: 2.5rem; animation: fadeUp 0.7s 0.35s cubic-bezier(0.16,1,0.3,1) both; }
         .stat-item { flex: 1; padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 0.2rem; }
         .stat-item + .stat-item { border-left: 1px solid var(--muted-border); }
         .stat-value { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 600; color: var(--ink); line-height: 1; }
@@ -141,6 +104,7 @@
         .action-card:nth-child(3) { animation-delay: 0.59s; }
         .action-card:nth-child(4) { animation-delay: 0.66s; }
         .action-card:nth-child(5) { animation-delay: 0.73s; }
+        .action-card:nth-child(6) { animation-delay: 0.80s; }
         .action-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); opacity: 0; transition: opacity 0.25s; }
         .action-card:hover { border-color: rgba(201,169,110,0.4); transform: translateY(-4px); box-shadow: 0 12px 36px rgba(26,22,18,0.09); }
         .action-card:hover::before { opacity: 1; }
@@ -150,6 +114,13 @@
         .action-card.admin:hover { border-color: var(--gold); box-shadow: 0 12px 36px rgba(26,22,18,0.25); }
         .action-card.admin .action-card-sub { color: rgba(245,240,232,0.4); border-color: rgba(201,169,110,0.12); }
 
+        /* Repayment card — teal accent */
+        .action-card.repayment { border-color: rgba(74,155,127,0.2); }
+        .action-card.repayment::before { background: linear-gradient(90deg, var(--success), #6ec4a8); }
+        .action-card.repayment:hover { border-color: rgba(74,155,127,0.5); box-shadow: 0 12px 36px rgba(74,155,127,0.1); }
+        .action-card.repayment .action-icon { background: rgba(74,155,127,0.08); border-color: rgba(74,155,127,0.2); }
+        .action-card.repayment .action-card-sub { color: var(--warm-gray); border-color: rgba(74,155,127,0.12); }
+
         .action-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; background: var(--surface); border: 1px solid var(--muted-border); margin-bottom: 0.25rem; flex-shrink: 0; }
         .action-card.admin .action-icon { background: rgba(201,169,110,0.12); border-color: rgba(201,169,110,0.25); }
         .action-card-title { font-size: 0.93rem; font-weight: 500; line-height: 1.35; }
@@ -158,27 +129,14 @@
         .action-card:hover .arrow { transform: translateX(4px); }
 
         /* ── FOOTER ── */
-        footer {
-            position: relative; z-index: 1;
-            padding: 1.5rem 3rem;
-            border-top: 1px solid var(--muted-border);
-            background: #fff;
-            display: flex; align-items: center; justify-content: space-between;
-            font-size: 0.75rem; color: var(--warm-gray);
-            gap: 1rem; flex-wrap: wrap;
-        }
-
+        footer { position: relative; z-index: 1; padding: 1.5rem 3rem; border-top: 1px solid var(--muted-border); background: #fff; display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--warm-gray); gap: 1rem; flex-wrap: wrap; }
         .footer-left { display: flex; flex-direction: column; gap: 0.3rem; }
         .footer-copy { color: var(--ink); font-weight: 500; }
         .footer-copy span { color: var(--warm-gray); font-weight: 400; }
-
         .footer-meta { display: flex; align-items: center; gap: 0.75rem; font-size: 0.72rem; color: var(--warm-gray); }
         .footer-sep { color: var(--muted-border); }
-
         .footer-right { display: flex; align-items: center; gap: 1rem; }
-
         .build-badge { padding: 0.2rem 0.65rem; background: rgba(26,22,18,0.06); border: 1px solid var(--muted-border); border-radius: 100px; font-size: 0.68rem; font-weight: 500; color: var(--warm-gray); letter-spacing: 0.04em; }
-
         .status-indicator { display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; }
         .status-dot-live { width: 6px; height: 6px; border-radius: 50%; background: var(--success); animation: pulse 2s infinite; }
         @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
@@ -201,14 +159,11 @@
 </head>
 <body>
 
-    <!-- NAV -->
     <nav>
         <a href="{{ url_for('dashboard') }}" class="nav-brand">
             <div class="logo-mark"></div>
             <span class="brand-name">Loan<span>AI</span></span>
         </a>
-
-        <!-- Centre: live date + clock pill -->
         <div class="nav-center">
             <div class="nav-clock-pill">
                 <span class="date-part">{{ now.strftime('%a, %d %b %Y') }}</span>
@@ -216,7 +171,6 @@
                 <span class="time-part" id="nav-clock">{{ now.strftime('%I:%M %p') }}</span>
             </div>
         </div>
-
         <div class="nav-right">
             <a href="{{ url_for('dashboard') }}" class="btn-nav-ghost">Home</a>
             {% if session.role == "admin" %}
@@ -226,15 +180,13 @@
         </div>
     </nav>
 
-    <!-- MAIN -->
     <main>
 
-        <!-- Greeting -->
         <div class="greeting-block">
             <div class="greeting-top">
                 <div class="greeting-left">
                     <p class="greeting-eyebrow">Dashboard</p>
-                    <p class="time-salutation" id="salutation">
+                    <p class="time-salutation">
                         {% if now.hour < 12 %}Good morning,{% elif now.hour < 18 %}Good afternoon,{% else %}Good evening,{% endif %}
                         <strong>{{ session.name }}</strong>
                     </p>
@@ -252,7 +204,6 @@
             </div>
         </div>
 
-        <!-- Stats row -->
         <div class="stats-row">
             <div class="stat-item">
                 <span class="stat-value">99%</span>
@@ -273,7 +224,6 @@
 
         <div class="divider"></div>
 
-        <!-- Actions -->
         <div class="section-header">
             <p class="section-label">Available Actions</p>
         </div>
@@ -310,17 +260,17 @@
                 <div class="action-card-sub">Register new <span class="arrow">→</span></div>
             </a>
             {% endif %}
+
+            <!-- Repayment card — sits in the grid alongside all other cards -->
+            <a href="{{ url_for('add_repayment') }}" class="action-card repayment">
+                <div class="action-icon">💳</div>
+                <div class="action-card-title">Record Repayment</div>
+                <div class="action-card-sub">Post to ledger <span class="arrow">→</span></div>
+            </a>
         </div>
-<div class="actions">
-    <a href="{{ url_for('add_repayment') }}">
-        <button style="padding: 15px; cursor: pointer;">
-            ➕ Record New Repayment
-        </button>
-    </a>
-</div>
+
     </main>
 
-    <!-- FOOTER -->
     <footer>
         <div class="footer-left">
             <div class="footer-copy">LoanAI <span>· © {{ now.year }} · All rights reserved</span></div>
@@ -342,16 +292,14 @@
     <script>
         function updateClocks() {
             const now = new Date();
-            const opts = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+            const opts  = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
             const short = { hour: '2-digit', minute: '2-digit', hour12: true };
-            const t = now.toLocaleTimeString('en-KE', opts);
-            const ts = now.toLocaleTimeString('en-KE', short);
-            const navClock = document.getElementById('nav-clock');
-            const cardClock = document.getElementById('card-clock');
+            const navClock    = document.getElementById('nav-clock');
+            const cardClock   = document.getElementById('card-clock');
             const footerClock = document.getElementById('footer-clock');
-            if (navClock) navClock.textContent = t;
-            if (cardClock) cardClock.textContent = ts;
-            if (footerClock) footerClock.textContent = ts;
+            if (navClock)    navClock.textContent    = now.toLocaleTimeString('en-KE', opts);
+            if (cardClock)   cardClock.textContent   = now.toLocaleTimeString('en-KE', short);
+            if (footerClock) footerClock.textContent = now.toLocaleTimeString('en-KE', short);
         }
         setInterval(updateClocks, 1000);
         updateClocks();

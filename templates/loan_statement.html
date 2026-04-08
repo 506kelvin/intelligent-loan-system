@@ -2,79 +2,384 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Loan Statement - {{ loan.loan_id }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Statement — LoanAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        .statement-container { max-width: 1000px; margin: 30px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .header-box { display: flex; justify-content: space-between; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
-        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
-        .bg-paid { background: #d4edda; color: #155724; }
-        .bg-default { background: #f8d7da; color: #721c24; }
-        .bg-recovery { background: #fff3cd; color: #856404; }
-        .bg-cleared { background: #cce5ff; color: #004085; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; }
-        th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; }
-        td { padding: 12px; border-bottom: 1px solid #eee; }
-        .money { font-family: 'Courier New', Courier, monospace; font-weight: bold; text-align: right; }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --cream: #F5F0E8; --ink: #1A1612; --gold: #C9A96E; --gold-light: #E8D5B0;
+            --warm-gray: #8C8078; --surface: #FDFAF5; --muted-border: rgba(26,22,18,0.1);
+            --success: #4A9B7F; --danger: #C0624A; --warning: #C9A96E; --info: #5B7EC9;
+        }
+
+        body {
+            min-height: 100vh; background: var(--surface);
+            font-family: 'DM Sans', sans-serif; color: var(--ink);
+            display: flex; flex-direction: column;
+            position: relative; overflow-x: hidden;
+        }
+
+        body::before {
+            content: ''; position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 65% 40% at 90% 5%, rgba(201,169,110,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 45% 35% at 5% 90%, rgba(201,169,110,0.04) 0%, transparent 55%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: relative; z-index: 10; background: var(--ink);
+            padding: 0 3rem; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            animation: slideDown 0.7s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        nav::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.4; }
+        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .nav-brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-mark { width: 30px; height: 30px; border: 1.5px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .logo-mark::after { content: ''; width: 9px; height: 9px; background: var(--gold); border-radius: 50%; }
+        .brand-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--cream); letter-spacing: 0.05em; }
+        .brand-name span { color: var(--gold); }
+
+        .nav-right { display: flex; align-items: center; gap: 0.5rem; }
+        .btn-nav { padding: 0.45rem 1.1rem; background: transparent; border: 1px solid rgba(201,169,110,0.4); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500; color: var(--gold); text-decoration: none; letter-spacing: 0.06em; text-transform: uppercase; transition: background 0.2s, border-color 0.2s; display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }
+        .btn-nav:hover { background: rgba(201,169,110,0.1); border-color: var(--gold); }
+        .btn-nav svg { width: 13px; height: 13px; }
+
+        /* ── PAGE ── */
+        .page { flex: 1; position: relative; z-index: 1; padding: 3rem 2rem 5rem; max-width: 1160px; width: 100%; margin: 0 auto; }
+
+        /* ── PAGE HEADER ── */
+        .page-header {
+            display: flex; align-items: flex-end; justify-content: space-between;
+            margin-bottom: 2rem;
+            animation: fadeUp 0.7s 0.2s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .page-eyebrow { font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.16em; color: var(--warm-gray); margin-bottom: 0.5rem; }
+        .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 300; color: var(--ink); line-height: 1.1; }
+        .page-title em { font-style: italic; color: var(--gold); }
+        .divider-gold { width: 36px; height: 2px; background: var(--gold); margin-top: 0.9rem; }
+
+        .loan-id-badge {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem; font-weight: 600; color: var(--warm-gray);
+            border: 1px solid var(--muted-border); border-radius: 6px;
+            padding: 0.4rem 0.9rem; background: #fff;
+            letter-spacing: 0.04em;
+        }
+
+        /* ── SUMMARY CARDS ROW ── */
+        .summary-row {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 1rem; margin-bottom: 1.5rem;
+            animation: fadeUp 0.7s 0.3s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .summary-card {
+            background: #fff; border: 1px solid var(--muted-border);
+            border-radius: 12px; padding: 1.1rem 1.25rem;
+            position: relative; overflow: hidden;
+        }
+        .summary-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+        .summary-card.principal::before { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+        .summary-card.rate::before     { background: linear-gradient(90deg, var(--info), #8aaee8); }
+        .summary-card.member::before   { background: linear-gradient(90deg, var(--warm-gray), #b0a898); }
+        .summary-card.type::before     { background: linear-gradient(90deg, var(--success), #6ec4a8); }
+
+        .summary-card-label { font-size: 0.67rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.11em; color: var(--warm-gray); margin-bottom: 0.4rem; }
+        .summary-card-value { font-family: 'Cormorant Garamond', serif; font-size: 1.45rem; font-weight: 600; color: var(--ink); line-height: 1; }
+        .summary-card-value.small { font-size: 1.05rem; }
+        .summary-card-sub { font-size: 0.72rem; color: var(--warm-gray); margin-top: 0.2rem; }
+
+        /* ── TABLE CARD ── */
+        .table-card {
+            background: #fff; border: 1px solid var(--muted-border);
+            border-radius: 14px; overflow: hidden;
+            box-shadow: 0 4px 48px rgba(26,22,18,0.06);
+            animation: fadeUp 0.8s 0.4s cubic-bezier(0.16,1,0.3,1) both;
+            position: relative;
+        }
+        .table-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold)); }
+
+        /* TOOLBAR */
+        .table-toolbar {
+            padding: 1.1rem 1.75rem; border-bottom: 1px solid var(--muted-border);
+            display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+        }
+        .toolbar-title { display: flex; align-items: center; gap: 0.65rem; }
+        .toolbar-icon { width: 28px; height: 28px; background: rgba(201,169,110,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .toolbar-icon svg { width: 13px; height: 13px; color: var(--gold); }
+        .toolbar-label { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); }
+        .toolbar-count { font-size: 0.72rem; color: var(--warm-gray); border: 1px solid var(--muted-border); border-radius: 100px; padding: 0.15rem 0.6rem; }
+
+        /* TABLE */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 820px; }
+        thead tr { background: var(--surface); border-bottom: 1px solid var(--muted-border); }
+        thead th { padding: 0.85rem 1rem; text-align: left; font-size: 0.67rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; color: var(--warm-gray); white-space: nowrap; }
+        thead th.th-right { text-align: right; }
+
+        tbody tr { border-bottom: 1px solid rgba(26,22,18,0.05); transition: background 0.15s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(201,169,110,0.025); }
+
+        td { padding: 0.9rem 1rem; font-size: 0.845rem; vertical-align: middle; }
+
+        /* Month number */
+        .td-month { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; color: var(--warm-gray); font-weight: 400; }
+
+        /* Money cells */
+        .money { text-align: right; font-variant-numeric: tabular-nums; }
+        .money-prefix { font-size: 0.68rem; color: var(--warm-gray); margin-right: 0.15rem; }
+        .money-val { font-weight: 500; }
+        .money-val.zero { color: var(--danger); }
+        .money-val.penalty { color: #b87333; }
+        .money-val.balance { color: var(--ink); }
+
+        /* Status pills */
+        .status-pill { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.65rem; border-radius: 100px; font-size: 0.7rem; font-weight: 500; white-space: nowrap; letter-spacing: 0.03em; }
+        .status-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+        .status-pill.paid        { background: rgba(74,155,127,0.1);  color: #3a8a6e; border: 1px solid rgba(74,155,127,0.25); }
+        .status-pill.paid        .status-dot { background: var(--success); }
+        .status-pill.defaulted   { background: rgba(192,98,74,0.08);  color: #a04a30; border: 1px solid rgba(192,98,74,0.2); }
+        .status-pill.defaulted   .status-dot { background: var(--danger); }
+        .status-pill.recovery    { background: rgba(201,169,110,0.1); color: #a07c3a; border: 1px solid rgba(201,169,110,0.3); }
+        .status-pill.recovery    .status-dot { background: var(--warning); }
+        .status-pill.cleared     { background: rgba(91,126,201,0.08); color: #3a5aab; border: 1px solid rgba(91,126,201,0.2); }
+        .status-pill.cleared     .status-dot { background: var(--info); }
+        .status-pill.default-pill{ background: rgba(140,128,120,0.08); color: var(--warm-gray); border: 1px solid rgba(140,128,120,0.18); }
+        .status-pill.default-pill .status-dot { background: var(--warm-gray); }
+
+        /* TABLE FOOTER */
+        .table-footer {
+            padding: 1.1rem 1.75rem; border-top: 1px solid var(--muted-border);
+            background: rgba(26,22,18,0.015);
+            display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+        }
+        .table-footer-note { font-size: 0.75rem; color: var(--warm-gray); display: flex; align-items: center; gap: 0.4rem; }
+        .table-footer-note svg { width: 13px; height: 13px; opacity: 0.5; }
+
+        /* ── ACTIONS ── */
+        .actions-row {
+            display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+            margin-top: 1.25rem; flex-wrap: wrap;
+            animation: fadeUp 0.7s 0.55s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .actions-note { font-size: 0.78rem; color: var(--warm-gray); }
+
+        .btn-primary { padding: 0.9rem 2rem; background: var(--ink); color: var(--cream); border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase; cursor: pointer; position: relative; overflow: hidden; transition: background 0.2s, transform 0.1s; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; white-space: nowrap; }
+        .btn-primary:hover { background: #2D2820; }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary svg { width: 15px; height: 15px; }
+
+        .btn-secondary { padding: 0.9rem 2rem; background: transparent; border: 1px solid var(--muted-border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase; cursor: pointer; transition: border-color 0.2s, color 0.2s; display: flex; align-items: center; gap: 0.5rem; color: var(--warm-gray); }
+        .btn-secondary:hover { border-color: rgba(26,22,18,0.3); color: var(--ink); }
+        .btn-secondary svg { width: 15px; height: 15px; }
+        .btn-shimmer { position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent); transform: skewX(-20deg); animation: shimmer 3.5s 2s infinite; }
+        @keyframes shimmer { 0%{left:-100%} 100%{left:200%} }
+
+        .btn-group { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+        /* PAGE FOOTER */
+        footer { position: relative; z-index: 1; padding: 1.5rem 3rem; border-top: 1px solid var(--muted-border); display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--warm-gray); }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── PRINT STYLES ── */
+        @media print {
+            body::before, nav, .actions-row, footer { display: none !important; }
+            body { background: #fff; }
+            .page { padding: 0; max-width: 100%; }
+            .table-card { box-shadow: none; border: 1px solid #ddd; }
+            .summary-row { break-inside: avoid; }
+            .page-header { animation: none; }
+            tbody tr { break-inside: avoid; }
+        }
+
+        @media (max-width: 700px) {
+            nav { padding: 0 1.25rem; }
+            .page { padding: 2rem 1rem 3rem; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .btn-group { flex-direction: column; }
+            footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1.25rem; }
+        }
     </style>
 </head>
 <body>
-    <div class="statement-container">
-        <div class="header-box">
+
+    <nav>
+        <a href="{{ url_for('dashboard') }}" class="nav-brand">
+            <div class="logo-mark"></div>
+            <span class="brand-name">Loan<span>AI</span></span>
+        </a>
+        <div class="nav-right">
+            <a href="{{ url_for('dashboard') }}" class="btn-nav">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                Dashboard
+            </a>
+            <button onclick="window.print()" class="btn-nav">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                Print
+            </button>
+        </div>
+    </nav>
+
+    <div class="page">
+
+        <!-- Page Header -->
+        <div class="page-header">
             <div>
-                <h1>Loan Statement</h1>
-                <p><strong>Member ID:</strong> {{ loan.member_number }}</p>
-                <p><strong>Loan Type:</strong> {{ loan.loan_name }}</p>
+                <p class="page-eyebrow">Loan Management</p>
+                <h1 class="page-title">Loan <em>Statement</em></h1>
+                <div class="divider-gold"></div>
             </div>
-            <div style="text-align: right;">
-                <p><strong>Original Principal:</strong> KES {{ "{:,.2f}".format(loan.loan_amount) }}</p>
-                <p><strong>Interest Rate:</strong> {{ loan.interest_rate }}% p.a. (Reducing Balance)</p>
+            <span class="loan-id-badge"># {{ loan.loan_id }}</span>
+        </div>
+
+        <!-- Summary cards -->
+        <div class="summary-row">
+            <div class="summary-card principal">
+                <p class="summary-card-label">Original Principal</p>
+                <p class="summary-card-value">{{ "{:,.0f}".format(loan.loan_amount) }}</p>
+                <p class="summary-card-sub">KES</p>
+            </div>
+            <div class="summary-card rate">
+                <p class="summary-card-label">Interest Rate</p>
+                <p class="summary-card-value">{{ loan.interest_rate }}%</p>
+                <p class="summary-card-sub">p.a. · Reducing Balance</p>
+            </div>
+            <div class="summary-card member">
+                <p class="summary-card-label">Member ID</p>
+                <p class="summary-card-value small">{{ loan.member_number }}</p>
+                <p class="summary-card-sub">SACCO Member</p>
+            </div>
+            <div class="summary-card type">
+                <p class="summary-card-label">Loan Type</p>
+                <p class="summary-card-value small">{{ loan.loan_name }}</p>
+                <p class="summary-card-sub">Product</p>
             </div>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Month</th>
-                    <th>Principal Bal.</th>
-                    <th>Int. Charged</th>
-                    <th>Expected</th>
-                    <th>Actual</th>
-                    <th>Penalty</th>
-                    <th>Remaining Bal.</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for r in repayments %}
-                <tr>
-                    <td>{{ r.month_number }}</td>
-                    <td class="money">KES {{ "{:,.2f}".format(r.principal_balance) }}</td>
-                    <td class="money">KES {{ "{:,.2f}".format(r.interest_charged) }}</td>
-                    <td class="money">KES {{ "{:,.2f}".format(r.expected_payment) }}</td>
-                    <td class="money" style="color: {{ 'red' if r.actual_payment == 0 else 'black' }};">
-                        KES {{ "{:,.2f}".format(r.actual_payment) }}
-                    </td>
-                    <td class="money" style="color: darkorange;">KES {{ "{:,.2f}".format(r.penalty_charged) }}</td>
-                    <td class="money" style="background: #f9f9f9;">KES {{ "{:,.2f}".format(r.remaining_balance) }}</td>
-                    <td>
-                        {% set status_class = 'bg-paid' %}
-                        {% if r.payment_status == 'Defaulted' %}{% set status_class = 'bg-default' %}
-                        {% elif r.payment_status == 'Late Recovery' %}{% set status_class = 'bg-recovery' %}
-                        {% elif r.payment_status == 'Loan Cleared' %}{% set status_class = 'bg-cleared' %}
-                        {% endif %}
-                        <span class="status-badge {{ status_class }}">{{ r.payment_status }}</span>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <!-- Table -->
+        <div class="table-card">
+            <div class="table-toolbar">
+                <div class="toolbar-title">
+                    <div class="toolbar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                    </div>
+                    <span class="toolbar-label">Repayment Schedule</span>
+                    <span class="toolbar-count">{{ repayments | length }} months</span>
+                </div>
+            </div>
 
-        <div style="margin-top: 30px;">
-            <a href="{{ url_for('dashboard') }}" class="btn">Back to Dashboard</a>
-            <button onclick="window.print()" class="btn btn-secondary">Download PDF / Print</button>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mo.</th>
+                            <th class="th-right">Principal Bal.</th>
+                            <th class="th-right">Int. Charged</th>
+                            <th class="th-right">Expected</th>
+                            <th class="th-right">Actual</th>
+                            <th class="th-right">Penalty</th>
+                            <th class="th-right">Remaining</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in repayments %}
+                        <tr>
+                            <td class="td-month">{{ r.month_number }}</td>
+
+                            <td class="money">
+                                <span class="money-prefix">KES</span>
+                                <span class="money-val">{{ "{:,.2f}".format(r.principal_balance) }}</span>
+                            </td>
+
+                            <td class="money">
+                                <span class="money-prefix">KES</span>
+                                <span class="money-val">{{ "{:,.2f}".format(r.interest_charged) }}</span>
+                            </td>
+
+                            <td class="money">
+                                <span class="money-prefix">KES</span>
+                                <span class="money-val">{{ "{:,.2f}".format(r.expected_payment) }}</span>
+                            </td>
+
+                            <td class="money">
+                                <span class="money-prefix">KES</span>
+                                <span class="money-val {{ 'zero' if r.actual_payment == 0 else '' }}">{{ "{:,.2f}".format(r.actual_payment) }}</span>
+                            </td>
+
+                            <td class="money">
+                                <span class="money-prefix">KES</span>
+                                <span class="money-val {{ 'penalty' if r.penalty_charged > 0 else '' }}">{{ "{:,.2f}".format(r.penalty_charged) }}</span>
+                            </td>
+
+                            <td class="money">
+                                <span class="money-prefix">KES</span>
+                                <span class="money-val balance">{{ "{:,.2f}".format(r.remaining_balance) }}</span>
+                            </td>
+
+                            <td>
+                                {% set s = r.payment_status | lower %}
+                                {% if 'default' in s and 'late' not in s %}
+                                    {% set pill = 'defaulted' %}
+                                {% elif 'late' in s or 'recovery' in s %}
+                                    {% set pill = 'recovery' %}
+                                {% elif 'cleared' in s %}
+                                    {% set pill = 'cleared' %}
+                                {% elif 'paid' in s %}
+                                    {% set pill = 'paid' %}
+                                {% else %}
+                                    {% set pill = 'default-pill' %}
+                                {% endif %}
+                                <span class="status-pill {{ pill }}">
+                                    <span class="status-dot"></span>
+                                    {{ r.payment_status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-footer">
+                <p class="table-footer-note">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    All amounts in KES · Reducing balance method · Loan ID {{ loan.loan_id }}
+                </p>
+            </div>
         </div>
+
+        <!-- Actions -->
+        <div class="actions-row">
+            <p class="actions-note">Generated by LoanAI · Member {{ loan.member_number }}</p>
+            <div class="btn-group">
+                <a href="{{ url_for('dashboard') }}" class="btn-primary">
+                    <span class="btn-shimmer"></span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    Back to Dashboard
+                </a>
+                <button onclick="window.print()" class="btn-secondary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                    Download PDF / Print
+                </button>
+            </div>
+        </div>
+
     </div>
+
+    <footer>
+        <span>© 2025 LoanAI · All rights reserved</span>
+        <span>Loan Statement · {{ loan.loan_id }}</span>
+    </footer>
+
 </body>
 </html>
