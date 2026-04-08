@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sacco - Record Repayment</title>
+</head>
+<body>
+<div class="admin-container">
+    <div class="teller-header">
+        <h2>Sacco Operations: Post Loan Repayment</h2>
+        <p>Internal Ledger Entry Form</p>
+    </div>
+
+    <form method="POST" class="teller-form">
+        <div class="form-section">
+            <label>Select Member Account:</label>
+            <select name="loan_id" class="form-control select2" required>
+                <option value="" disabled selected>-- Search by Member ID or Name --</option>
+                {% for loan in loans %}
+                    <option value="{{ loan.loan_id }}">
+                        MEM-{{ loan.member_number }} | {{ loan.loan_name }} (Current Bal: KES {{ "{:,.2f}".format(loan.remaining_balance if loan.remaining_balance else loan.loan_amount) }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-row">
+            <div class="col">
+                <label>Posting Date (Value Date):</label>
+                <input type="date" name="payment_date" class="form-control" required>
+                <small>Date payment was received at the branch.</small>
+            </div>
+            <div class="col">
+                <label>Amount Collected (KES):</label>
+                <input type="number" name="actual_payment" step="0.01" class="form-control amount-input" placeholder="0.00" required>
+            </div>
+        </div>
+
+        <div class="auth-box">
+            <p><strong>Staff Authorization:</strong> {{ session['username'] }}</p>
+            <button type="submit" class="btn-post">Confirm & Post to Ledger</button>
+        </div>
+        
+        <div class="form-footer">
+            <a href="{{ url_for('dashboard') }}">Return to Admin Dashboard</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

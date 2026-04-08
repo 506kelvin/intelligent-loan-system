@@ -4,24 +4,513 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan AI - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cream: #F5F0E8;
+            --ink: #1A1612;
+            --gold: #C9A96E;
+            --gold-light: #E8D5B0;
+            --warm-gray: #8C8078;
+            --surface: #FDFAF5;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: var(--cream);
+            display: flex;
+            align-items: stretch;
+            font-family: 'DM Sans', sans-serif;
+            overflow: hidden;
+        }
+
+        /* Left decorative panel */
+        .panel-left {
+            flex: 0 0 42%;
+            background-color: var(--ink);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 3rem;
+            overflow: hidden;
+            animation: slideInLeft 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        .panel-left::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse 80% 60% at 20% 80%, rgba(201,169,110,0.18) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 20%, rgba(201,169,110,0.08) 0%, transparent 50%);
+        }
+
+        .panel-lines {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            opacity: 0.06;
+        }
+
+        .panel-lines::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: repeating-linear-gradient(
+                -45deg,
+                transparent,
+                transparent 40px,
+                rgba(201,169,110,1) 40px,
+                rgba(201,169,110,1) 41px
+            );
+        }
+
+        .brand {
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .logo-mark::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: var(--gold);
+            border-radius: 50%;
+        }
+
+        .brand-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--cream);
+            letter-spacing: 0.05em;
+        }
+
+        .brand-name span {
+            color: var(--gold);
+        }
+
+        .panel-headline {
+            position: relative;
+            z-index: 1;
+        }
+
+        .panel-headline h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.5rem, 4vw, 3.5rem);
+            font-weight: 300;
+            color: var(--cream);
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+
+        .panel-headline h1 em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        .divider-gold {
+            width: 48px;
+            height: 2px;
+            background: var(--gold);
+            margin-bottom: 1.5rem;
+        }
+
+        .panel-headline p {
+            color: var(--warm-gray);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            max-width: 280px;
+        }
+
+        .panel-footer {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--gold);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--warm-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .stat-divider {
+            width: 1px;
+            height: 40px;
+            background: rgba(201,169,110,0.25);
+        }
+
+        /* Right login panel */
+        .panel-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            background: var(--surface);
+            position: relative;
+        }
+
+        .panel-right::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse 70% 50% at 70% 30%, rgba(201,169,110,0.05) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 380px;
+            animation: fadeUp 0.8s 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .login-header h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem;
+            font-weight: 400;
+            color: var(--ink);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: var(--warm-gray);
+            font-size: 0.875rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+            animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.55s; }
+        .form-group:nth-child(2) { animation-delay: 0.65s; }
+
+        label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--warm-gray);
+            margin-bottom: 0.6rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            background: transparent;
+            border: 1px solid rgba(26,22,18,0.15);
+            border-radius: 4px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            color: var(--ink);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input::placeholder {
+            color: rgba(140,128,120,0.4);
+        }
+
+        input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201,169,110,0.1);
+        }
+
+        .input-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gold);
+            transition: width 0.3s ease;
+            border-radius: 0 0 0 4px;
+        }
+
+        .form-group:focus-within .input-line {
+            width: 100%;
+        }
+
+        .form-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 2rem;
+            margin-top: -0.75rem;
+        }
+
+        .forgot-link {
+            font-size: 0.8rem;
+            color: var(--warm-gray);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .forgot-link:hover {
+            color: var(--gold);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background: var(--ink);
+            color: var(--cream);
+            border: none;
+            border-radius: 4px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: background-color 0.3s, transform 0.1s;
+            animation: fadeUp 0.8s 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 40%, rgba(201,169,110,0.15) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn-login:hover {
+            background-color: #2D2820;
+        }
+
+        .btn-login:hover::before {
+            opacity: 1;
+        }
+
+        .btn-login:active {
+            transform: scale(0.99);
+        }
+
+        .btn-shimmer {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+            transform: skewX(-20deg);
+            animation: shimmer 3s 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        .login-note {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--warm-gray);
+            animation: fadeUp 0.8s 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .login-note a {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* Decorative corner element */
+        .corner-decor {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            opacity: 0.12;
+        }
+
+        .corner-decor svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                flex-direction: column;
+                overflow: auto;
+            }
+
+            .panel-left {
+                flex: 0 0 auto;
+                padding: 2rem;
+                min-height: 220px;
+                animation: none;
+            }
+
+            .panel-headline {
+                display: none;
+            }
+
+            .panel-footer {
+                display: none;
+            }
+
+            .panel-right {
+                flex: 1;
+                padding: 2rem 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>System Login</h2>
-    
-    <form action="/login" method="POST">
-        <div>
-            <label for="email">Email:</label><br>
-            <input type="email" id="email" name="email" required>
-        </div>
-        <br>
-        <div>
-            <label for="password">Password:</label><br>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <br>
-        <button type="submit">Login</button>
-    </form>
 
-    <p>Don't have an account? Contact your administrator.</p>
+    <div class="panel-left">
+        <div class="panel-lines"></div>
+
+        <div class="brand">
+            <div class="brand-logo">
+                <div class="logo-mark"></div>
+                <span class="brand-name">Loan<span>AI</span></span>
+            </div>
+        </div>
+
+        <div class="panel-headline">
+            <h1>Intelligent<br>lending,<br><em>refined.</em></h1>
+            <div class="divider-gold"></div>
+            <p>A sophisticated platform for loan management and AI-driven financial insights.</p>
+        </div>
+
+        <div class="panel-footer">
+            <div class="stat">
+                <span class="stat-number">99%</span>
+                <span class="stat-label">Accuracy</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+                <span class="stat-number">2s</span>
+                <span class="stat-label">Decisions</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+                <span class="stat-number">24/7</span>
+                <span class="stat-label">Monitoring</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-right">
+        <div class="login-card">
+            <div class="login-header">
+                <h2>Welcome back</h2>
+                <p>Sign in to access your dashboard</p>
+            </div>
+
+            <form action="/login" method="POST">
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input type="email" id="email" name="email" placeholder="you@company.com" required>
+                    <div class="input-line"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    <div class="input-line"></div>
+                </div>
+
+                <div class="form-footer">
+                    <a href="#" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <span class="btn-shimmer"></span>
+                    Sign In
+                </button>
+            </form>
+
+            <p class="login-note">Don't have an account? <a href="#">Contact your administrator</a></p>
+        </div>
+
+        <div class="corner-decor">
+            <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="30" cy="30" r="28" stroke="#C9A96E" stroke-width="1"/>
+                <circle cx="30" cy="30" r="20" stroke="#C9A96E" stroke-width="1"/>
+                <circle cx="30" cy="30" r="4" fill="#C9A96E"/>
+                <line x1="30" y1="2" x2="30" y2="58" stroke="#C9A96E" stroke-width="0.5"/>
+                <line x1="2" y1="30" x2="58" y2="30" stroke="#C9A96E" stroke-width="0.5"/>
+            </svg>
+        </div>
+    </div>
+
 </body>
 </html>

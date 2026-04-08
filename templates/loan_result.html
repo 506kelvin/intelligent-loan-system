@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Decision — LoanAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --cream: #F5F0E8; --ink: #1A1612; --gold: #C9A96E; --gold-light: #E8D5B0;
+            --warm-gray: #8C8078; --surface: #FDFAF5; --muted-border: rgba(26,22,18,0.1);
+            --success: #4A9B7F; --success-light: rgba(74,155,127,0.08);
+            --danger: #C0624A; --danger-light: rgba(192,98,74,0.08);
+            --pending: #C9A96E; --pending-light: rgba(201,169,110,0.08);
+        }
+
+        body {
+            min-height: 100vh; background: var(--surface);
+            font-family: 'DM Sans', sans-serif; color: var(--ink);
+            display: flex; flex-direction: column;
+            position: relative; overflow-x: hidden;
+        }
+
+        body::before {
+            content: ''; position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 65% 45% at 50% 0%, rgba(201,169,110,0.06) 0%, transparent 65%),
+                radial-gradient(ellipse 45% 35% at 90% 85%, rgba(74,155,127,0.04) 0%, transparent 55%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: relative; z-index: 10; background: var(--ink);
+            padding: 0 3rem; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            animation: slideDown 0.7s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        nav::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.4; }
+        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .nav-brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-mark { width: 30px; height: 30px; border: 1.5px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .logo-mark::after { content: ''; width: 9px; height: 9px; background: var(--gold); border-radius: 50%; }
+        .brand-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--cream); letter-spacing: 0.05em; }
+        .brand-name span { color: var(--gold); }
+        .btn-nav { padding: 0.45rem 1.1rem; background: transparent; border: 1px solid rgba(201,169,110,0.4); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500; color: var(--gold); text-decoration: none; letter-spacing: 0.06em; text-transform: uppercase; transition: background 0.2s, border-color 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+        .btn-nav:hover { background: rgba(201,169,110,0.1); border-color: var(--gold); }
+        .btn-nav svg { width: 13px; height: 13px; }
+
+        /* ── PAGE ── */
+        .page { flex: 1; position: relative; z-index: 1; padding: 3.5rem 2rem 5rem; display: flex; flex-direction: column; align-items: center; }
+
+        /* ── HEADER ── */
+        .page-header { text-align: center; margin-bottom: 2.5rem; animation: fadeUp 0.7s 0.2s cubic-bezier(0.16,1,0.3,1) both; }
+        .page-eyebrow { font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.16em; color: var(--warm-gray); margin-bottom: 0.6rem; }
+        .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 300; color: var(--ink); margin-bottom: 1rem; }
+        .page-title em { font-style: italic; color: var(--gold); }
+        .divider-gold { width: 36px; height: 2px; background: var(--gold); margin: 0 auto; }
+
+        /* ── LAYOUT ── */
+        .layout { display: flex; flex-direction: column; gap: 1.25rem; width: 100%; max-width: 680px; }
+
+        /* ── DECISION HERO CARD ── */
+        .decision-card {
+            background: #fff; border: 1px solid var(--muted-border);
+            border-radius: 16px; overflow: hidden;
+            box-shadow: 0 4px 48px rgba(26,22,18,0.07);
+            animation: popIn 0.7s 0.3s cubic-bezier(0.16,1,0.3,1) both;
+            position: relative;
+        }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.97) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+        /* Dynamic top bar — colour set via inline style on .decision-card */
+        .decision-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .decision-card.approved::before { background: linear-gradient(90deg, var(--success), #6ec4a8); }
+        .decision-card.declined::before { background: linear-gradient(90deg, var(--danger), #d4836a); }
+        .decision-card.review::before  { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+
+        /* Hero verdict area */
+        .verdict-hero {
+            padding: 2.5rem 2.5rem 2rem;
+            display: flex; align-items: center; gap: 2rem;
+            border-bottom: 1px solid var(--muted-border);
+        }
+
+        .verdict-icon-wrap {
+            flex-shrink: 0;
+            width: 72px; height: 72px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .verdict-icon-wrap.approved { background: var(--success-light); border: 1.5px solid rgba(74,155,127,0.25); }
+        .verdict-icon-wrap.declined { background: var(--danger-light);  border: 1.5px solid rgba(192,98,74,0.25); }
+        .verdict-icon-wrap.review   { background: var(--pending-light); border: 1.5px solid rgba(201,169,110,0.3); }
+
+        .verdict-icon-wrap svg { width: 32px; height: 32px; }
+        .verdict-icon-wrap.approved svg { stroke: var(--success); }
+        .verdict-icon-wrap.declined svg { stroke: var(--danger); }
+        .verdict-icon-wrap.review   svg { stroke: var(--gold); }
+
+        .verdict-text {}
+        .verdict-eyebrow { font-size: 0.7rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.13em; margin-bottom: 0.3rem; }
+        .verdict-eyebrow.approved { color: var(--success); }
+        .verdict-eyebrow.declined { color: var(--danger); }
+        .verdict-eyebrow.review   { color: var(--gold); }
+
+        .verdict-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem; font-weight: 300; line-height: 1.1; color: var(--ink);
+        }
+        .verdict-label em { font-style: italic; }
+        .verdict-label.approved em { color: var(--success); }
+        .verdict-label.declined em { color: var(--danger); }
+        .verdict-label.review   em { color: var(--gold); }
+
+        .verdict-member { font-size: 0.82rem; color: var(--warm-gray); margin-top: 0.35rem; }
+
+        /* Score ring */
+        .score-ring-wrap {
+            margin-left: auto; flex-shrink: 0;
+            display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+        }
+        .score-ring { position: relative; width: 80px; height: 80px; }
+        .score-ring svg { width: 80px; height: 80px; transform: rotate(-90deg); }
+        .score-ring-bg { fill: none; stroke: rgba(26,22,18,0.07); stroke-width: 6; }
+        .score-ring-fill { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(0.16,1,0.3,1); }
+        .score-ring-fill.approved { stroke: var(--success); }
+        .score-ring-fill.declined { stroke: var(--danger); }
+        .score-ring-fill.review   { stroke: var(--gold); }
+        .score-number {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; color: var(--ink);
+        }
+        .score-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--warm-gray); }
+
+        /* ── LOAN DETAILS ── */
+        .details-section { padding: 1.75rem 2.5rem; }
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .detail-item { display: flex; flex-direction: column; gap: 0.2rem; }
+        .detail-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--warm-gray); }
+        .detail-value { font-size: 0.9rem; font-weight: 500; color: var(--ink); }
+        .detail-value.amount { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 600; }
+        .detail-prefix { font-size: 0.72rem; color: var(--warm-gray); font-weight: 400; margin-right: 0.2rem; font-family: 'DM Sans', sans-serif; }
+
+        /* ── REASONS SECTION ── */
+        .reasons-card {
+            background: #fff; border: 1px solid var(--muted-border);
+            border-radius: 14px; overflow: hidden;
+            box-shadow: 0 2px 24px rgba(26,22,18,0.05);
+            animation: fadeUp 0.7s 0.5s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .reasons-header {
+            padding: 1.25rem 1.75rem;
+            border-bottom: 1px solid var(--muted-border);
+            display: flex; align-items: center; gap: 0.65rem;
+            background: rgba(26,22,18,0.015);
+        }
+        .reasons-icon { width: 28px; height: 28px; background: rgba(201,169,110,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .reasons-icon svg { width: 13px; height: 13px; color: var(--gold); }
+        .reasons-title { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); }
+
+        .reasons-list { padding: 0.5rem 0; }
+        .reason-item {
+            display: flex; align-items: flex-start; gap: 0.85rem;
+            padding: 0.85rem 1.75rem;
+            border-bottom: 1px solid rgba(26,22,18,0.04);
+            animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .reason-item:last-child { border-bottom: none; }
+        .reason-item:nth-child(1) { animation-delay: 0.6s; }
+        .reason-item:nth-child(2) { animation-delay: 0.67s; }
+        .reason-item:nth-child(3) { animation-delay: 0.74s; }
+        .reason-item:nth-child(4) { animation-delay: 0.81s; }
+        .reason-item:nth-child(5) { animation-delay: 0.88s; }
+
+        .reason-bullet {
+            flex-shrink: 0; margin-top: 3px;
+            width: 18px; height: 18px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .reason-bullet svg { width: 10px; height: 10px; }
+        .reason-bullet.positive { background: var(--success-light); }
+        .reason-bullet.positive svg { stroke: var(--success); }
+        .reason-bullet.negative { background: var(--danger-light); }
+        .reason-bullet.negative svg { stroke: var(--danger); }
+        .reason-bullet.neutral  { background: rgba(140,128,120,0.1); }
+        .reason-bullet.neutral  svg { stroke: var(--warm-gray); }
+
+        .reason-text { font-size: 0.855rem; color: var(--ink); line-height: 1.55; }
+
+        /* ── ACTIONS ── */
+        .actions-card {
+            background: #fff; border: 1px solid var(--muted-border);
+            border-radius: 14px; padding: 1.5rem 1.75rem;
+            box-shadow: 0 2px 24px rgba(26,22,18,0.05);
+            display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+            flex-wrap: wrap;
+            animation: fadeUp 0.7s 0.65s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .actions-note { font-size: 0.78rem; color: var(--warm-gray); display: flex; align-items: center; gap: 0.4rem; }
+        .actions-note svg { width: 13px; height: 13px; opacity: 0.5; flex-shrink: 0; }
+
+        .btn-primary { padding: 0.9rem 2rem; background: var(--ink); color: var(--cream); border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase; cursor: pointer; position: relative; overflow: hidden; transition: background 0.2s, transform 0.1s; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; white-space: nowrap; }
+        .btn-primary:hover { background: #2D2820; }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary svg { width: 15px; height: 15px; }
+        .btn-shimmer { position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent); transform: skewX(-20deg); animation: shimmer 3.5s 2s infinite; }
+        @keyframes shimmer { 0%{left:-100%} 100%{left:200%} }
+
+        /* PAGE FOOTER */
+        footer { position: relative; z-index: 1; padding: 1.5rem 3rem; border-top: 1px solid var(--muted-border); display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--warm-gray); }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 600px) {
+            nav { padding: 0 1.25rem; }
+            .page { padding: 2rem 1rem 3rem; }
+            .verdict-hero { flex-direction: column; align-items: flex-start; gap: 1.25rem; }
+            .score-ring-wrap { margin-left: 0; }
+            .details-grid { grid-template-columns: 1fr; }
+            .details-section, .reasons-header, .reason-item { padding-left: 1.25rem; padding-right: 1.25rem; }
+            .actions-card { flex-direction: column; align-items: stretch; }
+            .btn-primary { justify-content: center; }
+            footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="{{ url_for('dashboard') }}" class="nav-brand">
+            <div class="logo-mark"></div>
+            <span class="brand-name">Loan<span>AI</span></span>
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn-nav">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            Dashboard
+        </a>
+    </nav>
+
+    <div class="page">
+
+        <div class="page-header">
+            <p class="page-eyebrow">AI Decision Engine</p>
+            <h1 class="page-title">Application <em>Result</em></h1>
+            <div class="divider-gold"></div>
+        </div>
+
+        <div class="layout">
+
+            <!-- ── DECISION HERO ── -->
+            {%
+              set decision_class = 'approved' if loan.decision | lower in ['approved', 'approve']
+                               else 'declined' if loan.decision | lower in ['declined', 'decline', 'rejected', 'reject']
+                               else 'review'
+            %}
+            {%
+              set score_pct = (loan.score | float / 100 * 100) | round | int
+            %}
+
+            <div class="decision-card {{ decision_class }}">
+
+                <div class="verdict-hero">
+                    <!-- Icon -->
+                    <div class="verdict-icon-wrap {{ decision_class }}">
+                        {% if decision_class == 'approved' %}
+                        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        {% elif decision_class == 'declined' %}
+                        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        {% else %}
+                        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        {% endif %}
+                    </div>
+
+                    <!-- Text -->
+                    <div class="verdict-text">
+                        <p class="verdict-eyebrow {{ decision_class }}">
+                            {% if decision_class == 'approved' %}Application Approved
+                            {% elif decision_class == 'declined' %}Application Declined
+                            {% else %}Under Review{% endif %}
+                        </p>
+                        <p class="verdict-label {{ decision_class }}">
+                            {% if decision_class == 'approved' %}Loan <em>approved</em>
+                            {% elif decision_class == 'declined' %}Loan <em>declined</em>
+                            {% else %}Requires <em>review</em>{% endif %}
+                        </p>
+                        <p class="verdict-member">{{ loan.full_name }}</p>
+                    </div>
+
+                    <!-- Score ring -->
+                    <div class="score-ring-wrap">
+                        <div class="score-ring">
+                            <svg viewBox="0 0 80 80">
+                                <circle class="score-ring-bg" cx="40" cy="40" r="34"/>
+                                <circle class="score-ring-fill {{ decision_class }}"
+                                        cx="40" cy="40" r="34"
+                                        stroke-dasharray="213.6"
+                                        stroke-dashoffset="{{ 213.6 - (213.6 * loan.score / 100) }}"
+                                        id="score-ring-fill"/>
+                            </svg>
+                            <span class="score-number">{{ loan.score }}</span>
+                        </div>
+                        <span class="score-label">AI Score</span>
+                    </div>
+                </div>
+
+                <!-- Loan details grid -->
+                <div class="details-section">
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Loan Amount</span>
+                            <span class="detail-value amount"><span class="detail-prefix">KES</span>{{ "{:,.0f}".format(loan.loan_amount) }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Monthly Installment</span>
+                            <span class="detail-value amount"><span class="detail-prefix">KES</span>{{ "{:,.0f}".format(loan.monthly_installment) }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Repayment Period</span>
+                            <span class="detail-value">{{ loan.repayment_period }} months</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Decision</span>
+                            <span class="detail-value">{{ loan.decision }}</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ── REASONS ── -->
+            <div class="reasons-card">
+                <div class="reasons-header">
+                    <div class="reasons-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    </div>
+                    <span class="reasons-title">Decision Reasoning</span>
+                </div>
+                <div class="reasons-list">
+                    {% for reason in reasons %}
+                    {%
+                        set bullet_class = 'positive' if reason | lower | regex_search('good|strong|sufficient|eligible|above|meets|qualif|pass|approv') 
+                                       else 'negative' if reason | lower | regex_search('low|insufficient|fail|poor|below|exceed|risk|reject|declin|miss')
+                                       else 'neutral'
+                    %}
+                    <div class="reason-item">
+                        <div class="reason-bullet {{ bullet_class }}">
+                            {% if bullet_class == 'positive' %}
+                            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            {% elif bullet_class == 'negative' %}
+                            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            {% else %}
+                            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="2"></circle></svg>
+                            {% endif %}
+                        </div>
+                        <p class="reason-text">{{ reason }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- ── ACTIONS ── -->
+            <div class="actions-card">
+                <p class="actions-note">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    Decision generated by LoanAI engine · {{ loan.full_name }}
+                </p>
+                <a href="{{ url_for('dashboard') }}" class="btn-primary">
+                    <span class="btn-shimmer"></span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    Back to Dashboard
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        <span>© 2025 LoanAI · All rights reserved</span>
+        <span>AI Decision Engine</span>
+    </footer>
+
+</body>
+</html>

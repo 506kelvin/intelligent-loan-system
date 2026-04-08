@@ -43,3 +43,15 @@ def create_user(name, email, plain_password, role='customer'):
 def verify_password(stored_hash, entered_password):
     """Returns True if password matches, False otherwise."""
     return check_password_hash(stored_hash, entered_password)
+
+def get_all_users():
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("SELECT id, name, email, role FROM users")
+            return cursor.fetchall()
+        finally:
+            cursor.close()
+            conn.close()
+    return []

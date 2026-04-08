@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Users — LoanAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --cream: #F5F0E8; --ink: #1A1612; --gold: #C9A96E; --gold-light: #E8D5B0;
+            --warm-gray: #8C8078; --surface: #FDFAF5; --muted-border: rgba(26,22,18,0.1);
+            --success: #4A9B7F; --admin-bg: rgba(26,22,18,0.04);
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--surface);
+            font-family: 'DM Sans', sans-serif;
+            color: var(--ink);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 65% 40% at 90% 5%, rgba(201,169,110,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse 45% 35% at 5% 90%, rgba(201,169,110,0.04) 0%, transparent 55%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* NAV */
+        nav {
+            position: relative; z-index: 10;
+            background: var(--ink);
+            padding: 0 3rem; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            animation: slideDown 0.7s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        nav::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.4; }
+        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .nav-brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-mark { width: 30px; height: 30px; border: 1.5px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .logo-mark::after { content: ''; width: 9px; height: 9px; background: var(--gold); border-radius: 50%; }
+        .brand-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--cream); letter-spacing: 0.05em; }
+        .brand-name span { color: var(--gold); }
+
+        .btn-nav { padding: 0.45rem 1.1rem; background: transparent; border: 1px solid rgba(201,169,110,0.4); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500; color: var(--gold); text-decoration: none; letter-spacing: 0.06em; text-transform: uppercase; transition: background 0.2s, border-color 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+        .btn-nav:hover { background: rgba(201,169,110,0.1); border-color: var(--gold); }
+        .btn-nav svg { width: 13px; height: 13px; }
+
+        /* PAGE */
+        .page { flex: 1; position: relative; z-index: 1; padding: 3.5rem 2rem 5rem; max-width: 1000px; width: 100%; margin: 0 auto; }
+
+        /* HEADER */
+        .page-header {
+            display: flex; align-items: flex-end; justify-content: space-between;
+            margin-bottom: 2.5rem;
+            animation: fadeUp 0.7s 0.2s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .header-left {}
+        .page-eyebrow { font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.16em; color: var(--warm-gray); margin-bottom: 0.6rem; }
+        .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 300; color: var(--ink); line-height: 1.1; }
+        .page-title em { font-style: italic; color: var(--gold); }
+        .divider-gold { width: 36px; height: 2px; background: var(--gold); margin-top: 1rem; }
+
+        .user-count {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.8rem;
+            font-weight: 300;
+            color: var(--ink);
+            line-height: 1;
+            text-align: right;
+        }
+        .user-count-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--warm-gray); text-align: right; margin-top: 0.2rem; }
+
+        /* TABLE CARD */
+        .table-card {
+            background: #fff;
+            border: 1px solid var(--muted-border);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 48px rgba(26,22,18,0.06);
+            animation: fadeUp 0.8s 0.35s cubic-bezier(0.16,1,0.3,1) both;
+            position: relative;
+        }
+        .table-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold)); }
+
+        /* TOOLBAR */
+        .table-toolbar {
+            padding: 1.1rem 1.75rem;
+            border-bottom: 1px solid var(--muted-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .toolbar-left { display: flex; align-items: center; gap: 0.75rem; }
+        .toolbar-label { font-size: 0.7rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; color: var(--warm-gray); }
+
+        .search-wrap { position: relative; }
+        .search-wrap svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); width: 13px; height: 13px; color: rgba(140,128,120,0.5); pointer-events: none; }
+        #search-input {
+            padding: 0.5rem 1rem 0.5rem 2.2rem;
+            background: var(--surface);
+            border: 1px solid rgba(26,22,18,0.12);
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            color: var(--ink);
+            outline: none;
+            width: 220px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        #search-input::placeholder { color: rgba(140,128,120,0.4); }
+        #search-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,169,110,0.1); background: #fff; }
+
+        /* TABLE */
+        table { width: 100%; border-collapse: collapse; }
+        thead tr { background: var(--surface); border-bottom: 1px solid var(--muted-border); }
+        thead th {
+            padding: 0.85rem 1.75rem;
+            text-align: left;
+            font-size: 0.68rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.13em;
+            color: var(--warm-gray);
+            white-space: nowrap;
+        }
+        thead th:first-child { width: 80px; }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(26,22,18,0.05);
+            transition: background 0.15s;
+        }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(201,169,110,0.03); }
+
+        td {
+            padding: 1rem 1.75rem;
+            font-size: 0.875rem;
+            color: var(--ink);
+            vertical-align: middle;
+        }
+
+        /* ID cell */
+        .td-id {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--warm-gray);
+        }
+
+        /* Avatar + name cell */
+        .user-cell { display: flex; align-items: center; gap: 0.85rem; }
+        .avatar {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--ink) 0%, #3a3028 100%);
+            border: 1px solid rgba(201,169,110,0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--gold);
+            flex-shrink: 0;
+        }
+        .user-name { font-weight: 500; font-size: 0.875rem; }
+        .user-email-sub { font-size: 0.75rem; color: var(--warm-gray); margin-top: 0.05rem; }
+
+        /* Email cell */
+        .td-email { color: var(--warm-gray); font-size: 0.83rem; }
+
+        /* Role badge */
+        .role-pill {
+            display: inline-flex; align-items: center; gap: 0.35rem;
+            padding: 0.28rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            text-transform: capitalize;
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+        }
+        .role-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+        .role-pill.admin { background: rgba(26,22,18,0.07); color: var(--ink); border: 1px solid rgba(26,22,18,0.15); }
+        .role-pill.admin .role-dot { background: var(--gold); }
+        .role-pill.worker { background: rgba(74,155,127,0.08); color: #3a8a6e; border: 1px solid rgba(74,155,127,0.2); }
+        .role-pill.worker .role-dot { background: var(--success); }
+        .role-pill.default { background: rgba(140,128,120,0.08); color: var(--warm-gray); border: 1px solid rgba(140,128,120,0.2); }
+        .role-pill.default .role-dot { background: var(--warm-gray); }
+
+        /* EMPTY STATE */
+        .empty-state { padding: 4rem 2rem; text-align: center; }
+        .empty-icon { font-size: 2rem; margin-bottom: 1rem; opacity: 0.35; }
+        .empty-text { font-size: 0.875rem; color: var(--warm-gray); }
+
+        /* FOOTER */
+        footer { position: relative; z-index: 1; padding: 1.5rem 3rem; border-top: 1px solid var(--muted-border); display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--warm-gray); }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 660px) {
+            nav { padding: 0 1.25rem; }
+            .page { padding: 2rem 1rem 3rem; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .user-count, .user-count-label { text-align: left; }
+            thead th:nth-child(3), td:nth-child(3) { display: none; }
+            td { padding: 0.85rem 1rem; }
+            thead th { padding: 0.7rem 1rem; }
+            footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="{{ url_for('dashboard') }}" class="nav-brand">
+            <div class="logo-mark"></div>
+            <span class="brand-name">Loan<span>AI</span></span>
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn-nav">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            Dashboard
+        </a>
+    </nav>
+
+    <div class="page">
+
+        <div class="page-header">
+            <div class="header-left">
+                <p class="page-eyebrow">Admin Panel</p>
+                <h1 class="page-title">Registered <em>Users</em></h1>
+                <div class="divider-gold"></div>
+            </div>
+            <div>
+                <div class="user-count">{{ users | length }}</div>
+                <div class="user-count-label">Total Users</div>
+            </div>
+        </div>
+
+        <div class="table-card">
+
+            <div class="table-toolbar">
+                <span class="toolbar-label">All accounts</span>
+                <div class="search-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="search-input" placeholder="Search users…">
+                </div>
+            </div>
+
+            <table id="users-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td class="td-id">{{ user.id }}</td>
+                        <td>
+                            <div class="user-cell">
+                                <div class="avatar">{{ user.name[0] | upper }}</div>
+                                <div>
+                                    <div class="user-name">{{ user.name }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="td-email">{{ user.email }}</td>
+                        <td>
+                            <span class="role-pill {{ user.role | lower }}">
+                                <span class="role-dot"></span>
+                                {{ user.role }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if not users %}
+            <div class="empty-state">
+                <div class="empty-icon">👤</div>
+                <p class="empty-text">No users registered yet.</p>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <footer>
+        <span>© 2025 LoanAI · All rights reserved</span>
+        <span>Admin Panel</span>
+    </footer>
+
+    <script>
+        const input = document.getElementById('search-input');
+        const rows = document.querySelectorAll('#users-table tbody tr');
+        input.addEventListener('input', () => {
+            const q = input.value.toLowerCase();
+            rows.forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+            });
+        });
+    </script>
+
+</body>
+</html>

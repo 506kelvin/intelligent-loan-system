@@ -3,32 +3,359 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Loan AI</title>
+    <title>Dashboard — LoanAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --cream: #F5F0E8; --ink: #1A1612; --gold: #C9A96E; --gold-light: #E8D5B0;
+            --warm-gray: #8C8078; --surface: #FDFAF5; --muted-border: rgba(26,22,18,0.1);
+            --success: #4A9B7F;
+        }
+
+        body {
+            min-height: 100vh; background: var(--surface);
+            font-family: 'DM Sans', sans-serif; color: var(--ink);
+            display: flex; flex-direction: column;
+            position: relative; overflow-x: hidden;
+        }
+
+        body::before {
+            content: ''; position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 70% 45% at 90% 5%, rgba(201,169,110,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 5% 85%, rgba(201,169,110,0.04) 0%, transparent 55%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: relative; z-index: 10; background: var(--ink);
+            padding: 0 3rem; height: 68px;
+            display: flex; align-items: center; justify-content: space-between;
+            animation: slideDown 0.7s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        nav::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.4; }
+        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .nav-brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-mark { width: 32px; height: 32px; border: 1.5px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .logo-mark::after { content: ''; width: 9px; height: 9px; background: var(--gold); border-radius: 50%; }
+        .brand-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--cream); letter-spacing: 0.05em; }
+        .brand-name span { color: var(--gold); }
+
+        .nav-center {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        .nav-clock-pill {
+            display: flex; align-items: center; gap: 0.6rem;
+            padding: 0.38rem 1rem;
+            border: 1px solid rgba(201,169,110,0.2);
+            border-radius: 100px;
+            font-size: 0.78rem; color: rgba(245,240,232,0.55);
+            letter-spacing: 0.03em;
+        }
+
+        .nav-clock-pill .date-part { color: rgba(245,240,232,0.4); }
+        .nav-clock-pill .sep { color: rgba(201,169,110,0.35); margin: 0 0.1rem; }
+        .nav-clock-pill .time-part { color: var(--gold); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+        .nav-right { display: flex; align-items: center; gap: 0.5rem; }
+
+        .btn-nav-ghost { padding: 0.42rem 1rem; background: transparent; border: 1px solid rgba(201,169,110,0.25); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; color: rgba(245,240,232,0.65); text-decoration: none; letter-spacing: 0.05em; transition: all 0.2s; white-space: nowrap; }
+        .btn-nav-ghost:hover { background: rgba(201,169,110,0.08); border-color: rgba(201,169,110,0.5); color: var(--cream); }
+
+        .btn-nav-gold { padding: 0.42rem 1rem; background: rgba(201,169,110,0.12); border: 1px solid rgba(201,169,110,0.45); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; color: var(--gold); text-decoration: none; letter-spacing: 0.05em; transition: all 0.2s; white-space: nowrap; }
+        .btn-nav-gold:hover { background: rgba(201,169,110,0.2); border-color: var(--gold); }
+
+        .btn-nav-logout { padding: 0.42rem 1rem; background: transparent; border: 1px solid rgba(245,240,232,0.12); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; color: rgba(245,240,232,0.38); text-decoration: none; letter-spacing: 0.05em; transition: all 0.2s; }
+        .btn-nav-logout:hover { background: rgba(255,255,255,0.04); color: rgba(245,240,232,0.7); border-color: rgba(245,240,232,0.25); }
+
+        /* ── MAIN ── */
+        main { position: relative; z-index: 1; flex: 1; max-width: 980px; width: 100%; margin: 0 auto; padding: 3.5rem 2rem 5rem; }
+
+        /* ── GREETING ── */
+        .greeting-block { margin-bottom: 2.5rem; animation: fadeUp 0.8s 0.25s cubic-bezier(0.16,1,0.3,1) both; }
+
+        .greeting-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+
+        .greeting-left {}
+
+        .greeting-eyebrow { font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.16em; color: var(--gold); margin-bottom: 0.5rem; }
+
+        .time-salutation { font-size: 0.82rem; color: var(--warm-gray); margin-bottom: 0.35rem; }
+        .time-salutation strong { color: var(--ink); font-weight: 500; }
+
+        .greeting-name { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 5vw, 3.2rem); font-weight: 300; line-height: 1.1; color: var(--ink); margin-bottom: 1rem; }
+        .greeting-name em { font-style: italic; color: var(--gold); }
+
+        .role-badge { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.75rem; font-weight: 500; color: var(--warm-gray); background: #fff; border: 1px solid var(--muted-border); border-radius: 100px; padding: 0.3rem 0.9rem; letter-spacing: 0.04em; text-transform: capitalize; }
+        .role-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+        /* Date card in greeting */
+        .date-card {
+            background: #fff; border: 1px solid var(--muted-border); border-radius: 12px;
+            padding: 1.1rem 1.5rem; text-align: right; min-width: 190px;
+            box-shadow: 0 2px 16px rgba(26,22,18,0.05);
+        }
+        .date-card-day { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 300; color: var(--ink); line-height: 1; }
+        .date-card-month { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.13em; color: var(--warm-gray); margin-top: 0.15rem; }
+        .date-card-time { font-size: 1rem; font-weight: 500; color: var(--gold); margin-top: 0.5rem; font-variant-numeric: tabular-nums; }
+
+        /* ── DIVIDER ── */
+        .divider { height: 1px; background: linear-gradient(90deg, var(--muted-border) 0%, transparent 80%); margin: 2.5rem 0; }
+
+        /* ── STATS ── */
+        .stats-row {
+            display: flex; gap: 0; background: #fff; border: 1px solid var(--muted-border);
+            border-radius: 12px; overflow: hidden; margin-bottom: 2.5rem;
+            animation: fadeUp 0.7s 0.35s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .stat-item { flex: 1; padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 0.2rem; }
+        .stat-item + .stat-item { border-left: 1px solid var(--muted-border); }
+        .stat-value { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 600; color: var(--ink); line-height: 1; }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--warm-gray); }
+        .stat-trend { font-size: 0.72rem; color: var(--success); margin-top: 0.15rem; }
+
+        /* ── SECTION HEADER ── */
+        .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; animation: fadeUp 0.7s 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+        .section-label { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--warm-gray); }
+
+        /* ── ACTIONS GRID ── */
+        .actions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1rem; }
+
+        /* ── ACTION CARD ── */
+        .action-card {
+            background: #fff; border: 1px solid var(--muted-border); border-radius: 14px;
+            padding: 1.6rem 1.5rem 1.4rem; text-decoration: none; color: var(--ink);
+            display: flex; flex-direction: column; gap: 0.6rem;
+            transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+            position: relative; overflow: hidden;
+            animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .action-card:nth-child(1) { animation-delay: 0.45s; }
+        .action-card:nth-child(2) { animation-delay: 0.52s; }
+        .action-card:nth-child(3) { animation-delay: 0.59s; }
+        .action-card:nth-child(4) { animation-delay: 0.66s; }
+        .action-card:nth-child(5) { animation-delay: 0.73s; }
+        .action-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); opacity: 0; transition: opacity 0.25s; }
+        .action-card:hover { border-color: rgba(201,169,110,0.4); transform: translateY(-4px); box-shadow: 0 12px 36px rgba(26,22,18,0.09); }
+        .action-card:hover::before { opacity: 1; }
+
+        .action-card.admin { background: var(--ink); border-color: rgba(201,169,110,0.2); color: var(--cream); }
+        .action-card.admin::before { background: linear-gradient(90deg, var(--gold), rgba(201,169,110,0.4)); }
+        .action-card.admin:hover { border-color: var(--gold); box-shadow: 0 12px 36px rgba(26,22,18,0.25); }
+        .action-card.admin .action-card-sub { color: rgba(245,240,232,0.4); border-color: rgba(201,169,110,0.12); }
+
+        .action-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; background: var(--surface); border: 1px solid var(--muted-border); margin-bottom: 0.25rem; flex-shrink: 0; }
+        .action-card.admin .action-icon { background: rgba(201,169,110,0.12); border-color: rgba(201,169,110,0.25); }
+        .action-card-title { font-size: 0.93rem; font-weight: 500; line-height: 1.35; }
+        .action-card-sub { font-size: 0.75rem; color: var(--warm-gray); margin-top: auto; padding-top: 0.5rem; border-top: 1px solid var(--muted-border); display: flex; align-items: center; justify-content: space-between; }
+        .arrow { display: inline-flex; align-items: center; transition: transform 0.2s; }
+        .action-card:hover .arrow { transform: translateX(4px); }
+
+        /* ── FOOTER ── */
+        footer {
+            position: relative; z-index: 1;
+            padding: 1.5rem 3rem;
+            border-top: 1px solid var(--muted-border);
+            background: #fff;
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 0.75rem; color: var(--warm-gray);
+            gap: 1rem; flex-wrap: wrap;
+        }
+
+        .footer-left { display: flex; flex-direction: column; gap: 0.3rem; }
+        .footer-copy { color: var(--ink); font-weight: 500; }
+        .footer-copy span { color: var(--warm-gray); font-weight: 400; }
+
+        .footer-meta { display: flex; align-items: center; gap: 0.75rem; font-size: 0.72rem; color: var(--warm-gray); }
+        .footer-sep { color: var(--muted-border); }
+
+        .footer-right { display: flex; align-items: center; gap: 1rem; }
+
+        .build-badge { padding: 0.2rem 0.65rem; background: rgba(26,22,18,0.06); border: 1px solid var(--muted-border); border-radius: 100px; font-size: 0.68rem; font-weight: 500; color: var(--warm-gray); letter-spacing: 0.04em; }
+
+        .status-indicator { display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; }
+        .status-dot-live { width: 6px; height: 6px; border-radius: 50%; background: var(--success); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+        .status-text { color: var(--success); font-weight: 500; }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 700px) {
+            nav { padding: 0 1.25rem; }
+            .nav-center { display: none; }
+            main { padding: 2rem 1rem 3rem; }
+            .greeting-top { flex-direction: column; }
+            .date-card { text-align: left; min-width: 0; width: 100%; display: flex; align-items: center; gap: 1.25rem; }
+            .date-card-time { margin-top: 0; }
+            .stats-row { flex-direction: column; }
+            .stat-item + .stat-item { border-left: none; border-top: 1px solid var(--muted-border); }
+            footer { flex-direction: column; align-items: flex-start; padding: 1.25rem; }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Loan AI Management System</h1>
-        <nav>
-            <a href="{{ url_for('dashboard') }}">Home</a> | 
-            <a href="/logout">Logout</a>
-        </nav>
-    </header>
 
-    <main>
-        <h2>Welcome, {{ session.name }}!</h2>
-        <p><strong>Your Role:</strong> {{ session.role }}</p>
-        
-        <hr>
-        
-        <h3>Available Actions</h3>
-        <ul>
-            {% if session.role == 'admin' %}
-                <li>Manage Users</li>
-                <li>System Logs</li>
+    <!-- NAV -->
+    <nav>
+        <a href="{{ url_for('dashboard') }}" class="nav-brand">
+            <div class="logo-mark"></div>
+            <span class="brand-name">Loan<span>AI</span></span>
+        </a>
+
+        <!-- Centre: live date + clock pill -->
+        <div class="nav-center">
+            <div class="nav-clock-pill">
+                <span class="date-part">{{ now.strftime('%a, %d %b %Y') }}</span>
+                <span class="sep">·</span>
+                <span class="time-part" id="nav-clock">{{ now.strftime('%I:%M %p') }}</span>
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <a href="{{ url_for('dashboard') }}" class="btn-nav-ghost">Home</a>
+            {% if session.role == "admin" %}
+            <a href="{{ url_for('register_worker') }}" class="btn-nav-gold">+ Register Worker</a>
             {% endif %}
-            <li>View Loan Applications</li>
-            <li>Submit New Application</li>
-        </ul>
+            <a href="/logout" class="btn-nav-logout">Log out</a>
+        </div>
+    </nav>
+
+    <!-- MAIN -->
+    <main>
+
+        <!-- Greeting -->
+        <div class="greeting-block">
+            <div class="greeting-top">
+                <div class="greeting-left">
+                    <p class="greeting-eyebrow">Dashboard</p>
+                    <p class="time-salutation" id="salutation">
+                        {% if now.hour < 12 %}Good morning,{% elif now.hour < 18 %}Good afternoon,{% else %}Good evening,{% endif %}
+                        <strong>{{ session.name }}</strong>
+                    </p>
+                    <h1 class="greeting-name">Welcome back,<br><em>{{ session.name }}</em></h1>
+                    <span class="role-badge">
+                        <span class="role-dot"></span>
+                        {{ session.role }}
+                    </span>
+                </div>
+                <div class="date-card">
+                    <div class="date-card-day">{{ now.strftime('%d') }}</div>
+                    <div class="date-card-month">{{ now.strftime('%B %Y') }}</div>
+                    <div class="date-card-time" id="card-clock">{{ now.strftime('%I:%M %p') }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats row -->
+        <div class="stats-row">
+            <div class="stat-item">
+                <span class="stat-value">99%</span>
+                <span class="stat-label">AI Accuracy</span>
+                <span class="stat-trend">↑ Operational</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">2s</span>
+                <span class="stat-label">Avg. Decision</span>
+                <span class="stat-trend">↑ Fast</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">24/7</span>
+                <span class="stat-label">System Uptime</span>
+                <span class="stat-trend">↑ All systems go</span>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Actions -->
+        <div class="section-header">
+            <p class="section-label">Available Actions</p>
+        </div>
+
+        <div class="actions-grid">
+            {% if session.role == 'admin' %}
+            <a href="{{ url_for('view_users') }}" class="action-card admin">
+                <div class="action-icon">👥</div>
+                <div class="action-card-title">Manage Users</div>
+                <div class="action-card-sub">Admin panel <span class="arrow">→</span></div>
+            </a>
+            <a href="#" class="action-card admin">
+                <div class="action-icon">📋</div>
+                <div class="action-card-title">System Logs</div>
+                <div class="action-card-sub">View activity <span class="arrow">→</span></div>
+            </a>
+            {% endif %}
+
+            <a href="{{ url_for('view_loans') }}" class="action-card">
+                <div class="action-icon">📁</div>
+                <div class="action-card-title">View Loan Applications</div>
+                <div class="action-card-sub">Browse all <span class="arrow">→</span></div>
+            </a>
+
+            {% if session.role == "worker" %}
+            <a href="{{ url_for('apply_loan') }}" class="action-card">
+                <div class="action-icon">✦</div>
+                <div class="action-card-title">Submit New Application</div>
+                <div class="action-card-sub">Get started <span class="arrow">→</span></div>
+            </a>
+            <a href="{{ url_for('add_member') }}" class="action-card">
+                <div class="action-icon">➕</div>
+                <div class="action-card-title">Add Member</div>
+                <div class="action-card-sub">Register new <span class="arrow">→</span></div>
+            </a>
+            {% endif %}
+        </div>
+<div class="actions">
+    <a href="{{ url_for('add_repayment') }}">
+        <button style="padding: 15px; cursor: pointer;">
+            ➕ Record New Repayment
+        </button>
+    </a>
+</div>
     </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-left">
+            <div class="footer-copy">LoanAI <span>· © {{ now.year }} · All rights reserved</span></div>
+            <div class="footer-meta">
+                <span>{{ now.strftime('%d %B %Y') }}</span>
+                <span class="footer-sep">|</span>
+                <span>Server time: <strong id="footer-clock">{{ now.strftime('%I:%M %p') }}</strong></span>
+            </div>
+        </div>
+        <div class="footer-right">
+            <span class="build-badge">Build: {{ version }}</span>
+            <div class="status-indicator">
+                <span class="status-dot-live"></span>
+                <span class="status-text">Operational</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function updateClocks() {
+            const now = new Date();
+            const opts = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+            const short = { hour: '2-digit', minute: '2-digit', hour12: true };
+            const t = now.toLocaleTimeString('en-KE', opts);
+            const ts = now.toLocaleTimeString('en-KE', short);
+            const navClock = document.getElementById('nav-clock');
+            const cardClock = document.getElementById('card-clock');
+            const footerClock = document.getElementById('footer-clock');
+            if (navClock) navClock.textContent = t;
+            if (cardClock) cardClock.textContent = ts;
+            if (footerClock) footerClock.textContent = ts;
+        }
+        setInterval(updateClocks, 1000);
+        updateClocks();
+    </script>
+
 </body>
 </html>

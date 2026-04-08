@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Registered — LoanAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --cream: #F5F0E8; --ink: #1A1612; --gold: #C9A96E; --gold-light: #E8D5B0;
+            --warm-gray: #8C8078; --surface: #FDFAF5; --muted-border: rgba(26,22,18,0.1);
+            --success: #4A9B7F; --success-light: rgba(74,155,127,0.08);
+        }
+
+        body {
+            min-height: 100vh; background: var(--surface);
+            font-family: 'DM Sans', sans-serif; color: var(--ink);
+            display: flex; flex-direction: column;
+            position: relative; overflow-x: hidden;
+        }
+
+        body::before {
+            content: ''; position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 65% 50% at 50% 30%, rgba(74,155,127,0.05) 0%, transparent 65%),
+                radial-gradient(ellipse 55% 40% at 90% 5%, rgba(201,169,110,0.06) 0%, transparent 55%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* NAV */
+        nav {
+            position: relative; z-index: 10; background: var(--ink);
+            padding: 0 3rem; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            animation: slideDown 0.7s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        nav::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.4; }
+        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .nav-brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-mark { width: 30px; height: 30px; border: 1.5px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .logo-mark::after { content: ''; width: 9px; height: 9px; background: var(--gold); border-radius: 50%; }
+        .brand-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--cream); letter-spacing: 0.05em; }
+        .brand-name span { color: var(--gold); }
+        .btn-nav { padding: 0.45rem 1.1rem; background: transparent; border: 1px solid rgba(201,169,110,0.4); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500; color: var(--gold); text-decoration: none; letter-spacing: 0.06em; text-transform: uppercase; transition: background 0.2s, border-color 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+        .btn-nav:hover { background: rgba(201,169,110,0.1); border-color: var(--gold); }
+        .btn-nav svg { width: 13px; height: 13px; }
+
+        /* PAGE */
+        .page {
+            flex: 1; position: relative; z-index: 1;
+            display: flex; align-items: center; justify-content: center;
+            padding: 4rem 2rem;
+        }
+
+        /* CARD */
+        .card {
+            width: 100%; max-width: 480px;
+            background: #fff; border: 1px solid var(--muted-border);
+            border-radius: 16px;
+            box-shadow: 0 8px 56px rgba(26,22,18,0.08);
+            overflow: hidden; position: relative;
+            animation: popIn 0.7s 0.2s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.95) translateY(20px); }
+            to   { opacity: 1; transform: scale(1)    translateY(0); }
+        }
+
+        .card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--success), #6ec4a8, var(--success));
+        }
+
+        /* SUCCESS ICON AREA */
+        .success-hero {
+            padding: 2.5rem 2.5rem 2rem;
+            display: flex; flex-direction: column; align-items: center;
+            text-align: center;
+            border-bottom: 1px solid var(--muted-border);
+        }
+
+        .check-ring {
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            background: var(--success-light);
+            border: 1.5px solid rgba(74,155,127,0.25);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 1.5rem;
+            animation: ringPop 0.6s 0.5s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        @keyframes ringPop {
+            from { transform: scale(0); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+
+        .check-ring svg {
+            width: 32px; height: 32px;
+            stroke: var(--success);
+            stroke-width: 2.5;
+            stroke-dasharray: 60;
+            stroke-dashoffset: 60;
+            animation: drawCheck 0.5s 0.9s ease forwards;
+        }
+
+        @keyframes drawCheck {
+            to { stroke-dashoffset: 0; }
+        }
+
+        .success-eyebrow {
+            font-size: 0.7rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 0.14em;
+            color: var(--success); margin-bottom: 0.5rem;
+            animation: fadeUp 0.6s 0.6s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .success-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.9rem; font-weight: 300; color: var(--ink);
+            line-height: 1.2; margin-bottom: 0.5rem;
+            animation: fadeUp 0.6s 0.65s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .success-title em { font-style: italic; color: var(--gold); }
+
+        .success-sub {
+            font-size: 0.83rem; color: var(--warm-gray); line-height: 1.6;
+            animation: fadeUp 0.6s 0.7s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        /* DETAILS */
+        .details {
+            padding: 1.75rem 2.5rem;
+            display: flex; flex-direction: column; gap: 0;
+            border-bottom: 1px solid var(--muted-border);
+            animation: fadeUp 0.6s 0.75s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .detail-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.85rem 0;
+        }
+
+        .detail-row + .detail-row { border-top: 1px solid rgba(26,22,18,0.05); }
+
+        .detail-label {
+            font-size: 0.72rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            color: var(--warm-gray);
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        .detail-label svg { width: 13px; height: 13px; opacity: 0.55; }
+
+        .detail-value {
+            font-size: 0.9rem; font-weight: 500;
+            color: var(--ink); text-align: right;
+        }
+
+        .member-number-val {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.35rem; font-weight: 600;
+            color: var(--ink); letter-spacing: 0.04em;
+        }
+
+        .member-badge {
+            display: inline-flex; align-items: center; gap: 0.35rem;
+            padding: 0.25rem 0.7rem;
+            background: rgba(74,155,127,0.08);
+            border: 1px solid rgba(74,155,127,0.2);
+            border-radius: 100px;
+            font-size: 0.68rem; font-weight: 500;
+            color: var(--success); letter-spacing: 0.04em;
+            margin-top: 0.35rem;
+        }
+
+        .member-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--success); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+
+        /* FOOTER */
+        .card-footer {
+            padding: 1.5rem 2.5rem;
+            display: flex; flex-direction: column; gap: 0.75rem;
+            animation: fadeUp 0.6s 0.85s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .btn-primary {
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.95rem;
+            background: var(--ink); color: var(--cream);
+            border: none; border-radius: 6px;
+            font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
+            font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase;
+            text-decoration: none; cursor: pointer;
+            position: relative; overflow: hidden;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn-primary:hover { background: #2D2820; }
+        .btn-primary:active { transform: scale(0.99); }
+        .btn-primary svg { width: 15px; height: 15px; }
+        .btn-shimmer { position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent); transform: skewX(-20deg); animation: shimmer 3.5s 2s infinite; }
+        @keyframes shimmer { 0%{left:-100%} 100%{left:200%} }
+
+        .btn-secondary {
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.85rem;
+            background: transparent; color: var(--warm-gray);
+            border: 1px solid var(--muted-border); border-radius: 6px;
+            font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
+            font-weight: 400; letter-spacing: 0.05em; text-transform: uppercase;
+            text-decoration: none; cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .btn-secondary:hover { border-color: rgba(26,22,18,0.25); color: var(--ink); }
+
+        /* PAGE FOOTER */
+        footer { position: relative; z-index: 1; padding: 1.5rem 3rem; border-top: 1px solid var(--muted-border); display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--warm-gray); }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 560px) {
+            nav { padding: 0 1.25rem; }
+            .page { padding: 2rem 1rem; align-items: flex-start; padding-top: 3rem; }
+            .success-hero, .details, .card-footer { padding-left: 1.5rem; padding-right: 1.5rem; }
+            footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="{{ url_for('dashboard') }}" class="nav-brand">
+            <div class="logo-mark"></div>
+            <span class="brand-name">Loan<span>AI</span></span>
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn-nav">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            Dashboard
+        </a>
+    </nav>
+
+    <div class="page">
+        <div class="card">
+
+            <!-- Success hero -->
+            <div class="success-hero">
+                <div class="check-ring">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+                <p class="success-eyebrow">Registration Complete</p>
+                <h1 class="success-title">Member <em>registered</em><br>successfully.</h1>
+                <p class="success-sub">The new member has been added to the system<br>and is ready to access LoanAI services.</p>
+            </div>
+
+            <!-- Member details -->
+            <div class="details">
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        Full Name
+                    </span>
+                    <span class="detail-value">{{ name }}</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 3H8l-2 4h12l-2-4z"></path></svg>
+                        Member Number
+                    </span>
+                    <div style="text-align:right">
+                        <div class="member-number-val">{{ member_number }}</div>
+                        <div class="member-badge">
+                            <span class="member-badge-dot"></span>
+                            Active
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card-footer">
+                <a href="{{ url_for('dashboard') }}" class="btn-primary">
+                    <span class="btn-shimmer"></span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    Back to Dashboard
+                </a>
+                <a href="{{ url_for('add_member') }}" class="btn-secondary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Register Another Member
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        <span>© 2026 LoanAI · All rights reserved</span>
+        <span>Member Management</span>
+    </footer>
+
+</body>
+</html>

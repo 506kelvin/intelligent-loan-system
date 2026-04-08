@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Applications — LoanAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --cream: #F5F0E8; --ink: #1A1612; --gold: #C9A96E; --gold-light: #E8D5B0;
+            --warm-gray: #8C8078; --surface: #FDFAF5; --muted-border: rgba(26,22,18,0.1);
+            --success: #4A9B7F; --pending: #C9A96E; --rejected: #C0624A; --review: #6A7FC0;
+        }
+
+        body {
+            min-height: 100vh; background: var(--surface);
+            font-family: 'DM Sans', sans-serif; color: var(--ink);
+            display: flex; flex-direction: column;
+            position: relative; overflow-x: hidden;
+        }
+
+        body::before {
+            content: ''; position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 65% 40% at 90% 5%, rgba(201,169,110,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse 45% 35% at 5% 90%, rgba(201,169,110,0.04) 0%, transparent 55%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* NAV */
+        nav {
+            position: relative; z-index: 10; background: var(--ink);
+            padding: 0 3rem; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            animation: slideDown 0.7s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        nav::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.4; }
+        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .nav-brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-mark { width: 30px; height: 30px; border: 1.5px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .logo-mark::after { content: ''; width: 9px; height: 9px; background: var(--gold); border-radius: 50%; }
+        .brand-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--cream); letter-spacing: 0.05em; }
+        .brand-name span { color: var(--gold); }
+        .btn-nav { padding: 0.45rem 1.1rem; background: transparent; border: 1px solid rgba(201,169,110,0.4); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500; color: var(--gold); text-decoration: none; letter-spacing: 0.06em; text-transform: uppercase; transition: background 0.2s, border-color 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+        .btn-nav:hover { background: rgba(201,169,110,0.1); border-color: var(--gold); }
+        .btn-nav svg { width: 13px; height: 13px; }
+
+        /* PAGE */
+        .page { flex: 1; position: relative; z-index: 1; padding: 3.5rem 2rem 5rem; max-width: 1200px; width: 100%; margin: 0 auto; }
+
+        /* HEADER */
+        .page-header {
+            display: flex; align-items: flex-end; justify-content: space-between;
+            margin-bottom: 2rem;
+            animation: fadeUp 0.7s 0.2s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .page-eyebrow { font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.16em; color: var(--warm-gray); margin-bottom: 0.6rem; }
+        .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 300; color: var(--ink); line-height: 1.1; }
+        .page-title em { font-style: italic; color: var(--gold); }
+        .divider-gold { width: 36px; height: 2px; background: var(--gold); margin-top: 1rem; }
+
+        .loan-count { font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; font-weight: 300; color: var(--ink); line-height: 1; text-align: right; }
+        .loan-count-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--warm-gray); text-align: right; margin-top: 0.2rem; }
+
+        /* STATUS SUMMARY PILLS */
+        .summary-row {
+            display: flex; gap: 0.75rem; flex-wrap: wrap;
+            margin-bottom: 2rem;
+            animation: fadeUp 0.7s 0.3s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .summary-pill {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #fff; border: 1px solid var(--muted-border);
+            border-radius: 100px; font-size: 0.78rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .summary-pill:hover, .summary-pill.active { border-color: var(--gold); background: rgba(201,169,110,0.07); }
+        .summary-pill .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .summary-pill .count { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 600; color: var(--ink); }
+        .dot-all { background: var(--warm-gray); }
+        .dot-approved { background: var(--success); }
+        .dot-pending { background: var(--pending); }
+        .dot-rejected { background: var(--rejected); }
+        .dot-review { background: var(--review); }
+
+        /* TABLE CARD */
+        .table-card {
+            background: #fff; border: 1px solid var(--muted-border);
+            border-radius: 14px; overflow: hidden;
+            box-shadow: 0 4px 48px rgba(26,22,18,0.06);
+            animation: fadeUp 0.8s 0.4s cubic-bezier(0.16,1,0.3,1) both;
+            position: relative;
+        }
+        .table-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold)); }
+
+        /* TOOLBAR */
+        .table-toolbar {
+            padding: 1.1rem 1.75rem; border-bottom: 1px solid var(--muted-border);
+            display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+        }
+        .toolbar-label { font-size: 0.7rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; color: var(--warm-gray); }
+        .search-wrap { position: relative; }
+        .search-wrap svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); width: 13px; height: 13px; color: rgba(140,128,120,0.5); pointer-events: none; }
+        #search-input { padding: 0.5rem 1rem 0.5rem 2.2rem; background: var(--surface); border: 1px solid rgba(26,22,18,0.12); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: var(--ink); outline: none; width: 240px; transition: border-color 0.2s, box-shadow 0.2s; }
+        #search-input::placeholder { color: rgba(140,128,120,0.4); }
+        #search-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,169,110,0.1); background: #fff; }
+
+        /* TABLE */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        thead tr { background: var(--surface); border-bottom: 1px solid var(--muted-border); }
+        thead th { padding: 0.85rem 1.25rem; text-align: left; font-size: 0.67rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.13em; color: var(--warm-gray); white-space: nowrap; }
+        thead th.th-right { text-align: right; }
+
+        tbody tr { border-bottom: 1px solid rgba(26,22,18,0.05); transition: background 0.15s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(201,169,110,0.03); }
+
+        td { padding: 1rem 1.25rem; font-size: 0.855rem; color: var(--ink); vertical-align: middle; }
+
+        .td-id { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; color: var(--warm-gray); }
+
+        .name-cell .applicant-name { font-weight: 500; font-size: 0.875rem; }
+        .name-cell .applicant-id { font-size: 0.73rem; color: var(--warm-gray); margin-top: 0.1rem; }
+
+        .td-phone { color: var(--warm-gray); font-size: 0.82rem; }
+        .td-date { color: var(--warm-gray); font-size: 0.8rem; white-space: nowrap; }
+        .td-right { text-align: right; }
+
+        .amount-val { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 600; }
+        .amount-prefix { font-size: 0.72rem; color: var(--warm-gray); margin-right: 0.2rem; font-family: 'DM Sans', sans-serif; font-weight: 400; }
+        .income-val { font-size: 0.82rem; color: var(--warm-gray); }
+
+        /* Employment pill */
+        .emp-pill { display: inline-block; padding: 0.22rem 0.65rem; border-radius: 4px; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.03em; background: rgba(140,128,120,0.08); color: var(--warm-gray); border: 1px solid rgba(140,128,120,0.15); }
+        .emp-pill.employed { background: rgba(74,155,127,0.07); color: #3a8a6e; border-color: rgba(74,155,127,0.2); }
+        .emp-pill.self-employed { background: rgba(106,127,192,0.07); color: #4a5fa0; border-color: rgba(106,127,192,0.2); }
+        .emp-pill.unemployed { background: rgba(192,98,74,0.07); color: #a04a30; border-color: rgba(192,98,74,0.18); }
+
+        /* Status pill */
+        .status-pill { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.75rem; border-radius: 100px; font-size: 0.72rem; font-weight: 500; text-transform: capitalize; letter-spacing: 0.03em; white-space: nowrap; }
+        .status-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+        .status-pill.approved  { background: rgba(74,155,127,0.1);  color: #3a8a6e; border: 1px solid rgba(74,155,127,0.25); }
+        .status-pill.approved  .status-dot { background: var(--success); }
+        .status-pill.pending   { background: rgba(201,169,110,0.1);  color: #a07c3a; border: 1px solid rgba(201,169,110,0.3); }
+        .status-pill.pending   .status-dot { background: var(--pending); }
+        .status-pill.rejected  { background: rgba(192,98,74,0.08);   color: #a04a30; border: 1px solid rgba(192,98,74,0.2); }
+        .status-pill.rejected  .status-dot { background: var(--rejected); }
+        .status-pill.review    { background: rgba(106,127,192,0.08); color: #4a5fa0; border: 1px solid rgba(106,127,192,0.2); }
+        .status-pill.review    .status-dot { background: var(--review); }
+        .status-pill.default   { background: rgba(140,128,120,0.08); color: var(--warm-gray); border: 1px solid rgba(140,128,120,0.2); }
+        .status-pill.default   .status-dot { background: var(--warm-gray); }
+
+        /* TABLE FOOTER */
+        .table-footer { padding: 1rem 1.75rem; border-top: 1px solid var(--muted-border); background: rgba(26,22,18,0.01); display: flex; align-items: center; justify-content: space-between; }
+        .table-footer-note { font-size: 0.75rem; color: var(--warm-gray); }
+        #visible-count { font-weight: 500; color: var(--ink); }
+
+        /* EMPTY STATE */
+        .empty-state { padding: 4rem 2rem; text-align: center; }
+        .empty-icon { font-size: 2rem; margin-bottom: 1rem; opacity: 0.35; }
+        .empty-text { font-size: 0.875rem; color: var(--warm-gray); }
+
+        /* FOOTER */
+        footer { position: relative; z-index: 1; padding: 1.5rem 3rem; border-top: 1px solid var(--muted-border); display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--warm-gray); }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 680px) {
+            nav { padding: 0 1.25rem; }
+            .page { padding: 2rem 1rem 3rem; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .loan-count, .loan-count-label { text-align: left; }
+            footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="{{ url_for('dashboard') }}" class="nav-brand">
+            <div class="logo-mark"></div>
+            <span class="brand-name">Loan<span>AI</span></span>
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn-nav">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            Dashboard
+        </a>
+    </nav>
+
+    <div class="page">
+
+        <div class="page-header">
+            <div>
+                <p class="page-eyebrow">Loan Management</p>
+                <h1 class="page-title">All Loan <em>Applications</em></h1>
+                <div class="divider-gold"></div>
+            </div>
+            <div>
+                <div class="loan-count">{{ loans | length }}</div>
+                <div class="loan-count-label">Total Applications</div>
+            </div>
+        </div>
+
+        <!-- Status filter pills -->
+        <div class="summary-row" id="filter-row">
+            <div class="summary-pill active" data-filter="all">
+                <span class="dot dot-all"></span>
+                <span>All</span>
+                <span class="count">{{ loans | length }}</span>
+            </div>
+            <div class="summary-pill" data-filter="approved">
+                <span class="dot dot-approved"></span>
+                <span>Approved</span>
+                <span class="count" id="cnt-approved">0</span>
+            </div>
+            <div class="summary-pill" data-filter="pending">
+                <span class="dot dot-pending"></span>
+                <span>Pending</span>
+                <span class="count" id="cnt-pending">0</span>
+            </div>
+            <div class="summary-pill" data-filter="rejected">
+                <span class="dot dot-rejected"></span>
+                <span>Rejected</span>
+                <span class="count" id="cnt-rejected">0</span>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-toolbar">
+                <span class="toolbar-label">Applications</span>
+                <div class="search-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="search-input" placeholder="Search by name, ID, phone…">
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table id="loans-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Applicant</th>
+                            <th>Phone</th>
+                            <th class="th-right">Amount</th>
+                            <th class="th-right">Income</th>
+                            <th>Employment</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for loan in loans %}
+                        <tr data-status="{{ loan.status | lower }}">
+                            <td class="td-id">{{ loan.id }}</td>
+                            <td>
+                                <div class="name-cell">
+                                    <div class="applicant-name">{{ loan.applicant_name }}</div>
+                                    <div class="applicant-id">ID: {{ loan.national_id }}</div>
+                                </div>
+                            </td>
+                            <td class="td-phone">{{ loan.phone }}</td>
+                            <td class="td-right">
+                                <span class="amount-prefix">KES</span>
+                                <span class="amount-val">{{ "{:,.0f}".format(loan.amount) }}</span>
+                            </td>
+                            <td class="td-right">
+                                <span class="income-val">KES {{ "{:,.0f}".format(loan.income) }}</span>
+                            </td>
+                            <td>
+                                <span class="emp-pill {{ loan.employment_status | lower | replace(' ', '-') }}">{{ loan.employment_status }}</span>
+                            </td>
+                            <td>
+                                <span class="status-pill {{ loan.status | lower }}">
+                                    <span class="status-dot"></span>
+                                    {{ loan.status }}
+                                </span>
+                            </td>
+                            <td class="td-date">{{ loan.created_at }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if not loans %}
+            <div class="empty-state">
+                <div class="empty-icon">📁</div>
+                <p class="empty-text">No loan applications found.</p>
+            </div>
+            {% endif %}
+
+            <div class="table-footer">
+                <span class="table-footer-note">Showing <span id="visible-count">{{ loans | length }}</span> of {{ loans | length }} applications</span>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <span>© 2026 LoanAI · All rights reserved</span>
+        <span>Loan Applications</span>
+    </footer>
+
+    <script>
+        const rows = Array.from(document.querySelectorAll('#loans-table tbody tr'));
+        const searchInput = document.getElementById('search-input');
+        const filterPills = document.querySelectorAll('.summary-pill');
+        const visibleCount = document.getElementById('visible-count');
+        let activeFilter = 'all';
+
+        // Count statuses and populate badges
+        const counts = {};
+        rows.forEach(r => {
+            const s = r.dataset.status;
+            counts[s] = (counts[s] || 0) + 1;
+        });
+        ['approved','pending','rejected'].forEach(s => {
+            const el = document.getElementById('cnt-' + s);
+            if (el) el.textContent = counts[s] || 0;
+        });
+
+        function applyFilters() {
+            const q = searchInput.value.toLowerCase();
+            let visible = 0;
+            rows.forEach(row => {
+                const matchFilter = activeFilter === 'all' || row.dataset.status === activeFilter;
+                const matchSearch = row.textContent.toLowerCase().includes(q);
+                const show = matchFilter && matchSearch;
+                row.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+            visibleCount.textContent = visible;
+        }
+
+        searchInput.addEventListener('input', applyFilters);
+
+        filterPills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                filterPills.forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                activeFilter = pill.dataset.filter;
+                applyFilters();
+            });
+        });
+    </script>
+
+</body>
+</html>

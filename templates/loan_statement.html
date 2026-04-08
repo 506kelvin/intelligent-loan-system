@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Loan Statement - {{ loan.loan_id }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .statement-container { max-width: 1000px; margin: 30px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header-box { display: flex; justify-content: space-between; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+        .bg-paid { background: #d4edda; color: #155724; }
+        .bg-default { background: #f8d7da; color: #721c24; }
+        .bg-recovery { background: #fff3cd; color: #856404; }
+        .bg-cleared { background: #cce5ff; color: #004085; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; }
+        th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+        .money { font-family: 'Courier New', Courier, monospace; font-weight: bold; text-align: right; }
+    </style>
+</head>
+<body>
+    <div class="statement-container">
+        <div class="header-box">
+            <div>
+                <h1>Loan Statement</h1>
+                <p><strong>Member ID:</strong> {{ loan.member_number }}</p>
+                <p><strong>Loan Type:</strong> {{ loan.loan_name }}</p>
+            </div>
+            <div style="text-align: right;">
+                <p><strong>Original Principal:</strong> KES {{ "{:,.2f}".format(loan.loan_amount) }}</p>
+                <p><strong>Interest Rate:</strong> {{ loan.interest_rate }}% p.a. (Reducing Balance)</p>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Principal Bal.</th>
+                    <th>Int. Charged</th>
+                    <th>Expected</th>
+                    <th>Actual</th>
+                    <th>Penalty</th>
+                    <th>Remaining Bal.</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in repayments %}
+                <tr>
+                    <td>{{ r.month_number }}</td>
+                    <td class="money">KES {{ "{:,.2f}".format(r.principal_balance) }}</td>
+                    <td class="money">KES {{ "{:,.2f}".format(r.interest_charged) }}</td>
+                    <td class="money">KES {{ "{:,.2f}".format(r.expected_payment) }}</td>
+                    <td class="money" style="color: {{ 'red' if r.actual_payment == 0 else 'black' }};">
+                        KES {{ "{:,.2f}".format(r.actual_payment) }}
+                    </td>
+                    <td class="money" style="color: darkorange;">KES {{ "{:,.2f}".format(r.penalty_charged) }}</td>
+                    <td class="money" style="background: #f9f9f9;">KES {{ "{:,.2f}".format(r.remaining_balance) }}</td>
+                    <td>
+                        {% set status_class = 'bg-paid' %}
+                        {% if r.payment_status == 'Defaulted' %}{% set status_class = 'bg-default' %}
+                        {% elif r.payment_status == 'Late Recovery' %}{% set status_class = 'bg-recovery' %}
+                        {% elif r.payment_status == 'Loan Cleared' %}{% set status_class = 'bg-cleared' %}
+                        {% endif %}
+                        <span class="status-badge {{ status_class }}">{{ r.payment_status }}</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div style="margin-top: 30px;">
+            <a href="{{ url_for('dashboard') }}" class="btn">Back to Dashboard</a>
+            <button onclick="window.print()" class="btn btn-secondary">Download PDF / Print</button>
+        </div>
+    </div>
+</body>
+</html>
