@@ -154,6 +154,12 @@
         .status-pill.cleared     .status-dot { background: var(--info); }
         .status-pill.default-pill{ background: rgba(140,128,120,0.08); color: var(--warm-gray); border: 1px solid rgba(140,128,120,0.18); }
         .status-pill.default-pill .status-dot { background: var(--warm-gray); }
+        .status-pill.partial { 
+    background: rgba(201,169,110,0.1); 
+    color: #a07c3a; 
+    border: 1px solid rgba(201,169,110,0.3); 
+}
+.status-pill.partial .status-dot { background: var(--warning); }
 
         /* TABLE FOOTER */
         .table-footer {
@@ -325,25 +331,27 @@
                                 <span class="money-prefix">KES</span>
                                 <span class="money-val balance">{{ "{:,.2f}".format(r.remaining_balance) }}</span>
                             </td>
+<td>
+    {# Convert to lowercase and replace spaces with dashes for CSS classes #}
+    {% set s_raw = r.payment_status if r.payment_status else 'Defaulted' %}
+    {% set s_class = s_raw | lower | replace(' ', '-') %}
+    
+    {# Map various strings to specific pill colors #}
+    {% if 'default' in s_class %}
+        {% set pill_type = 'defaulted' %}
+    {% elif 'partial' in s_class or 'recovery' in s_class or 'late' in s_class %}
+        {% set pill_type = 'warning' %}
+    {% elif 'cleared' in s_class %}
+        {% set pill_type = 'cleared' %}
+    {% else %}
+        {% set pill_type = 'paid' %}
+    {% endif %}
 
-                            <td>
-                                {% set s = r.payment_status | lower %}
-                                {% if 'default' in s and 'late' not in s %}
-                                    {% set pill = 'defaulted' %}
-                                {% elif 'late' in s or 'recovery' in s %}
-                                    {% set pill = 'recovery' %}
-                                {% elif 'cleared' in s %}
-                                    {% set pill = 'cleared' %}
-                                {% elif 'paid' in s %}
-                                    {% set pill = 'paid' %}
-                                {% else %}
-                                    {% set pill = 'default-pill' %}
-                                {% endif %}
-                                <span class="status-pill {{ pill }}">
-                                    <span class="status-dot"></span>
-                                    {{ r.payment_status }}
-                                </span>
-                            </td>
+    <span class="status-pill {{ pill_type }}">
+        <span class="status-dot"></span>
+        {{ s_raw }}
+    </span>
+</td>
                         </tr>
                         {% endfor %}
                     </tbody>

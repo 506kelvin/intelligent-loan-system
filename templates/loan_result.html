@@ -360,6 +360,48 @@
                     </div>
                     {% endfor %}
                 </div>
+                <div class="reasons-card">
+    <div class="reasons-header">
+        <span class="reasons-title">AI Risk Analysis</span>
+    </div>
+
+    <div class="reasons-list">
+        {% for reason in ai_reasons %}
+        <div class="reason-item">
+            <div class="reason-bullet neutral"></div>
+            <p class="reason-text">{{ reason }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<div class="reasons-card">
+    <div class="reasons-header">
+        <span class="reasons-title">Guarantor Evaluation</span>
+    </div>
+
+    <div class="reasons-list">
+        {% for reason in guarantor_reasons %}
+        <div class="reason-item">
+            <div class="reason-bullet neutral"></div>
+            <p class="reason-text">{{ reason }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<div class="reasons-card">
+    <div class="reasons-header">
+        <span class="reasons-title">Collateral Assessment</span>
+    </div>
+
+    <div class="reasons-list">
+        {% for reason in collateral_reasons %}
+        <div class="reason-item">
+            <div class="reason-bullet neutral"></div>
+            <p class="reason-text">{{ reason }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
             </div>
 
             <!-- ── ACTIONS ── -->

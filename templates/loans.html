@@ -29,7 +29,7 @@
             pointer-events: none; z-index: 0;
         }
 
-        /* NAV */
+        /* ── NAV ── */
         nav {
             position: relative; z-index: 10; background: var(--ink);
             padding: 0 3rem; height: 64px;
@@ -48,10 +48,10 @@
         .btn-nav:hover { background: rgba(201,169,110,0.1); border-color: var(--gold); }
         .btn-nav svg { width: 13px; height: 13px; }
 
-        /* PAGE */
-        .page { flex: 1; position: relative; z-index: 1; padding: 3.5rem 2rem 5rem; max-width: 1200px; width: 100%; margin: 0 auto; }
+        /* ── PAGE ── */
+        .page { flex: 1; position: relative; z-index: 1; padding: 3.5rem 2rem 5rem; max-width: 1280px; width: 100%; margin: 0 auto; }
 
-        /* HEADER */
+        /* ── HEADER ── */
         .page-header {
             display: flex; align-items: flex-end; justify-content: space-between;
             margin-bottom: 2rem;
@@ -61,11 +61,10 @@
         .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 300; color: var(--ink); line-height: 1.1; }
         .page-title em { font-style: italic; color: var(--gold); }
         .divider-gold { width: 36px; height: 2px; background: var(--gold); margin-top: 1rem; }
-
         .loan-count { font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; font-weight: 300; color: var(--ink); line-height: 1; text-align: right; }
         .loan-count-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--warm-gray); text-align: right; margin-top: 0.2rem; }
 
-        /* STATUS SUMMARY PILLS */
+        /* ── FILTER PILLS ── */
         .summary-row {
             display: flex; gap: 0.75rem; flex-wrap: wrap;
             margin-bottom: 2rem;
@@ -76,7 +75,7 @@
             padding: 0.5rem 1rem;
             background: #fff; border: 1px solid var(--muted-border);
             border-radius: 100px; font-size: 0.78rem; cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s; user-select: none;
         }
         .summary-pill:hover, .summary-pill.active { border-color: var(--gold); background: rgba(201,169,110,0.07); }
         .summary-pill .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
@@ -85,9 +84,8 @@
         .dot-approved { background: var(--success); }
         .dot-pending { background: var(--pending); }
         .dot-rejected { background: var(--rejected); }
-        .dot-review { background: var(--review); }
 
-        /* TABLE CARD */
+        /* ── TABLE CARD ── */
         .table-card {
             background: #fff; border: 1px solid var(--muted-border);
             border-radius: 14px; overflow: hidden;
@@ -111,50 +109,85 @@
 
         /* TABLE */
         .table-wrap { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
         thead tr { background: var(--surface); border-bottom: 1px solid var(--muted-border); }
-        thead th { padding: 0.85rem 1.25rem; text-align: left; font-size: 0.67rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.13em; color: var(--warm-gray); white-space: nowrap; }
+        thead th { padding: 0.85rem 1rem; text-align: left; font-size: 0.67rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.13em; color: var(--warm-gray); white-space: nowrap; }
         thead th.th-right { text-align: right; }
+        thead th.th-center { text-align: center; }
 
         tbody tr { border-bottom: 1px solid rgba(26,22,18,0.05); transition: background 0.15s; }
         tbody tr:last-child { border-bottom: none; }
-        tbody tr:hover { background: rgba(201,169,110,0.03); }
+        tbody tr:hover { background: rgba(201,169,110,0.025); }
 
-        td { padding: 1rem 1.25rem; font-size: 0.855rem; color: var(--ink); vertical-align: middle; }
+        td { padding: 0.9rem 1rem; font-size: 0.845rem; color: var(--ink); vertical-align: middle; }
 
         .td-id { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; color: var(--warm-gray); }
 
         .name-cell .applicant-name { font-weight: 500; font-size: 0.875rem; }
-        .name-cell .applicant-id { font-size: 0.73rem; color: var(--warm-gray); margin-top: 0.1rem; }
+        .name-cell .applicant-id { font-size: 0.73rem; color: var(--warm-gray); margin-top: 0.08rem; }
 
         .td-phone { color: var(--warm-gray); font-size: 0.82rem; }
         .td-date { color: var(--warm-gray); font-size: 0.8rem; white-space: nowrap; }
         .td-right { text-align: right; }
+        .td-center { text-align: center; }
 
         .amount-val { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 600; }
-        .amount-prefix { font-size: 0.72rem; color: var(--warm-gray); margin-right: 0.2rem; font-family: 'DM Sans', sans-serif; font-weight: 400; }
+        .amount-prefix { font-size: 0.7rem; color: var(--warm-gray); margin-right: 0.15rem; font-family: 'DM Sans', sans-serif; font-weight: 400; }
         .income-val { font-size: 0.82rem; color: var(--warm-gray); }
 
         /* Employment pill */
-        .emp-pill { display: inline-block; padding: 0.22rem 0.65rem; border-radius: 4px; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.03em; background: rgba(140,128,120,0.08); color: var(--warm-gray); border: 1px solid rgba(140,128,120,0.15); }
-        .emp-pill.employed { background: rgba(74,155,127,0.07); color: #3a8a6e; border-color: rgba(74,155,127,0.2); }
-        .emp-pill.self-employed { background: rgba(106,127,192,0.07); color: #4a5fa0; border-color: rgba(106,127,192,0.2); }
+        .emp-pill { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.7rem; font-weight: 500; background: rgba(140,128,120,0.08); color: var(--warm-gray); border: 1px solid rgba(140,128,120,0.15); white-space: nowrap; }
+        .emp-pill.permanent  { background: rgba(74,155,127,0.07); color: #3a8a6e; border-color: rgba(74,155,127,0.2); }
+        .emp-pill.contract   { background: rgba(106,127,192,0.07); color: #4a5fa0; border-color: rgba(106,127,192,0.2); }
+        .emp-pill.self-employed { background: rgba(201,169,110,0.08); color: #8a6a2a; border-color: rgba(201,169,110,0.22); }
         .emp-pill.unemployed { background: rgba(192,98,74,0.07); color: #a04a30; border-color: rgba(192,98,74,0.18); }
 
         /* Status pill */
-        .status-pill { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.75rem; border-radius: 100px; font-size: 0.72rem; font-weight: 500; text-transform: capitalize; letter-spacing: 0.03em; white-space: nowrap; }
+        .status-pill { display: inline-flex; align-items: center; gap: 0.32rem; padding: 0.28rem 0.7rem; border-radius: 100px; font-size: 0.7rem; font-weight: 500; text-transform: capitalize; letter-spacing: 0.03em; white-space: nowrap; }
         .status-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+        .status-pill.approved { background: rgba(74,155,127,0.1); color: #3a8a6e; border: 1px solid rgba(74,155,127,0.25); }
+        .status-pill.approved .status-dot { background: var(--success); }
+        .status-pill.pending  { background: rgba(201,169,110,0.1); color: #a07c3a; border: 1px solid rgba(201,169,110,0.3); }
+        .status-pill.pending  .status-dot { background: var(--pending); }
+        .status-pill.rejected { background: rgba(192,98,74,0.08); color: #a04a30; border: 1px solid rgba(192,98,74,0.2); }
+        .status-pill.rejected .status-dot { background: var(--rejected); }
+        .status-pill.default  { background: rgba(140,128,120,0.08); color: var(--warm-gray); border: 1px solid rgba(140,128,120,0.18); }
+        .status-pill.default  .status-dot { background: var(--warm-gray); }
 
-        .status-pill.approved  { background: rgba(74,155,127,0.1);  color: #3a8a6e; border: 1px solid rgba(74,155,127,0.25); }
-        .status-pill.approved  .status-dot { background: var(--success); }
-        .status-pill.pending   { background: rgba(201,169,110,0.1);  color: #a07c3a; border: 1px solid rgba(201,169,110,0.3); }
-        .status-pill.pending   .status-dot { background: var(--pending); }
-        .status-pill.rejected  { background: rgba(192,98,74,0.08);   color: #a04a30; border: 1px solid rgba(192,98,74,0.2); }
-        .status-pill.rejected  .status-dot { background: var(--rejected); }
-        .status-pill.review    { background: rgba(106,127,192,0.08); color: #4a5fa0; border: 1px solid rgba(106,127,192,0.2); }
-        .status-pill.review    .status-dot { background: var(--review); }
-        .status-pill.default   { background: rgba(140,128,120,0.08); color: var(--warm-gray); border: 1px solid rgba(140,128,120,0.2); }
-        .status-pill.default   .status-dot { background: var(--warm-gray); }
+        /* ── ACTION BUTTONS ── */
+        .action-btns { display: flex; align-items: center; gap: 0.4rem; justify-content: center; }
+
+        .btn-view {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            padding: 0.35rem 0.75rem;
+            background: transparent; border: 1px solid var(--muted-border);
+            border-radius: 5px; font-family: 'DM Sans', sans-serif;
+            font-size: 0.72rem; font-weight: 500; color: var(--warm-gray);
+            text-decoration: none; cursor: pointer;
+            transition: all 0.18s; white-space: nowrap;
+        }
+        .btn-view:hover { border-color: var(--gold); color: var(--ink); background: rgba(201,169,110,0.07); }
+        .btn-view svg { width: 11px; height: 11px; }
+
+        .btn-approve {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 28px; height: 28px;
+            background: rgba(74,155,127,0.08); border: 1px solid rgba(74,155,127,0.25);
+            border-radius: 5px; color: var(--success);
+            font-size: 0.75rem; cursor: pointer;
+            transition: all 0.18s;
+        }
+        .btn-approve:hover { background: rgba(74,155,127,0.18); border-color: rgba(74,155,127,0.5); }
+
+        .btn-reject {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 28px; height: 28px;
+            background: rgba(192,98,74,0.07); border: 1px solid rgba(192,98,74,0.22);
+            border-radius: 5px; color: var(--rejected);
+            font-size: 0.75rem; cursor: pointer;
+            transition: all 0.18s;
+        }
+        .btn-reject:hover { background: rgba(192,98,74,0.16); border-color: rgba(192,98,74,0.45); }
 
         /* TABLE FOOTER */
         .table-footer { padding: 1rem 1.75rem; border-top: 1px solid var(--muted-border); background: rgba(26,22,18,0.01); display: flex; align-items: center; justify-content: space-between; }
@@ -168,6 +201,7 @@
 
         /* FOOTER */
         footer { position: relative; z-index: 1; padding: 1.5rem 3rem; border-top: 1px solid var(--muted-border); display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--warm-gray); }
+
         @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 
         @media (max-width: 680px) {
@@ -206,26 +240,26 @@
             </div>
         </div>
 
-        <!-- Status filter pills -->
+        <!-- Filter pills -->
         <div class="summary-row" id="filter-row">
             <div class="summary-pill active" data-filter="all">
                 <span class="dot dot-all"></span>
-                <span>All</span>
+                All
                 <span class="count">{{ loans | length }}</span>
             </div>
             <div class="summary-pill" data-filter="approved">
                 <span class="dot dot-approved"></span>
-                <span>Approved</span>
+                Approved
                 <span class="count" id="cnt-approved">0</span>
             </div>
             <div class="summary-pill" data-filter="pending">
                 <span class="dot dot-pending"></span>
-                <span>Pending</span>
+                Pending
                 <span class="count" id="cnt-pending">0</span>
             </div>
             <div class="summary-pill" data-filter="rejected">
                 <span class="dot dot-rejected"></span>
-                <span>Rejected</span>
+                Rejected
                 <span class="count" id="cnt-rejected">0</span>
             </div>
         </div>
@@ -251,36 +285,77 @@
                             <th>Employment</th>
                             <th>Status</th>
                             <th>Date</th>
+                            <th class="th-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for loan in loans %}
                         <tr data-status="{{ loan.status | lower }}">
-                            <td class="td-id">{{ loan.id }}</td>
+
+                            <td class="td-id">{{ loan.loan_id }}</td>
+
                             <td>
                                 <div class="name-cell">
-                                    <div class="applicant-name">{{ loan.applicant_name }}</div>
-                                    <div class="applicant-id">ID: {{ loan.national_id }}</div>
+                                    <div class="applicant-name">{{ loan.full_name }}</div>
+                                    <div class="applicant-id">ID: {{ loan.id_number or 'N/A' }}</div>
                                 </div>
                             </td>
-                            <td class="td-phone">{{ loan.phone }}</td>
+
+                            <td class="td-phone">{{ loan.phone_number }}</td>
+
                             <td class="td-right">
                                 <span class="amount-prefix">KES</span>
-                                <span class="amount-val">{{ "{:,.0f}".format(loan.amount) }}</span>
+                                <span class="amount-val">{{ "{:,.0f}".format(loan.loan_amount) }}</span>
                             </td>
+
                             <td class="td-right">
-                                <span class="income-val">KES {{ "{:,.0f}".format(loan.income) }}</span>
+                                <span class="income-val">KES {{ "{:,.0f}".format(loan.monthly_income or 0) }}</span>
                             </td>
+
                             <td>
-                                <span class="emp-pill {{ loan.employment_status | lower | replace(' ', '-') }}">{{ loan.employment_status }}</span>
+                                <span class="emp-pill {{ loan.employment_type | lower | replace(' ', '-') if loan.employment_type else '' }}">
+                                    {{ loan.employment_type or '—' }}
+                                </span>
                             </td>
+
                             <td>
-                                <span class="status-pill {{ loan.status | lower }}">
+                                {% set s = loan.status | lower %}
+                                <span class="status-pill {{ s if s in ['approved','pending','rejected'] else 'default' }}">
                                     <span class="status-dot"></span>
                                     {{ loan.status }}
                                 </span>
                             </td>
-                            <td class="td-date">{{ loan.created_at }}</td>
+
+                            <td class="td-date">{{ loan.application_date or 'N/A' }}</td>
+
+                            <td class="td-center">
+                                <div class="action-btns">
+
+                                    <!-- View -->
+                                    <a href="{{ url_for('loan_result', loan_id=loan.loan_id) }}" class="btn-view">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                        View
+                                    </a>
+
+                                    <!-- Approve -->
+                                    {% if loan.status | lower != 'approved' %}
+                                    <form method="POST" action="{{ url_for('update_loan_status', loan_id=loan.loan_id) }}" style="display:contents;">
+                                        <input type="hidden" name="status" value="Approved">
+                                        <button type="submit" class="btn-approve" title="Approve" onclick="return confirm('Approve this loan?')">✓</button>
+                                    </form>
+                                    {% endif %}
+
+                                    <!-- Reject -->
+                                    {% if loan.status | lower != 'rejected' %}
+                                    <form method="POST" action="{{ url_for('update_loan_status', loan_id=loan.loan_id) }}" style="display:contents;">
+                                        <input type="hidden" name="status" value="Rejected">
+                                        <button type="submit" class="btn-reject" title="Reject" onclick="return confirm('Reject this loan?')">✕</button>
+                                    </form>
+                                    {% endif %}
+
+                                </div>
+                            </td>
+
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -302,23 +377,20 @@
     </div>
 
     <footer>
-        <span>© 2026 LoanAI · All rights reserved</span>
+        <span>© 2025 LoanAI · All rights reserved</span>
         <span>Loan Applications</span>
     </footer>
 
     <script>
-        const rows = Array.from(document.querySelectorAll('#loans-table tbody tr'));
+        const rows        = Array.from(document.querySelectorAll('#loans-table tbody tr'));
         const searchInput = document.getElementById('search-input');
         const filterPills = document.querySelectorAll('.summary-pill');
-        const visibleCount = document.getElementById('visible-count');
-        let activeFilter = 'all';
+        const visibleCount= document.getElementById('visible-count');
+        let activeFilter  = 'all';
 
-        // Count statuses and populate badges
+        // Tally statuses
         const counts = {};
-        rows.forEach(r => {
-            const s = r.dataset.status;
-            counts[s] = (counts[s] || 0) + 1;
-        });
+        rows.forEach(r => { const s = r.dataset.status; counts[s] = (counts[s] || 0) + 1; });
         ['approved','pending','rejected'].forEach(s => {
             const el = document.getElementById('cnt-' + s);
             if (el) el.textContent = counts[s] || 0;
@@ -328,17 +400,15 @@
             const q = searchInput.value.toLowerCase();
             let visible = 0;
             rows.forEach(row => {
-                const matchFilter = activeFilter === 'all' || row.dataset.status === activeFilter;
-                const matchSearch = row.textContent.toLowerCase().includes(q);
-                const show = matchFilter && matchSearch;
-                row.style.display = show ? '' : 'none';
-                if (show) visible++;
+                const match = (activeFilter === 'all' || row.dataset.status === activeFilter)
+                           && row.textContent.toLowerCase().includes(q);
+                row.style.display = match ? '' : 'none';
+                if (match) visible++;
             });
             visibleCount.textContent = visible;
         }
 
         searchInput.addEventListener('input', applyFilters);
-
         filterPills.forEach(pill => {
             pill.addEventListener('click', () => {
                 filterPills.forEach(p => p.classList.remove('active'));

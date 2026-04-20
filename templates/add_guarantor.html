@@ -305,15 +305,19 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="deposits">Deposits</label>
-                                <div class="input-wrap">
-                                    <span class="input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></span>
-                                    <span class="input-prefix">KES</span>
-                                    <input type="number" id="deposits" name="deposits" placeholder="0.00" class="has-prefix" min="0" step="100">
-                                    <div class="input-line"></div>
-                                </div>
-                            </div>
+                           <div class="form-group">
+    <label for="deposits">Deposits</label>
+    <div class="input-wrap">
+        <span class="input-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+        </span>
+        <span class="input-prefix">KES</span>
+        <input type="number" id="deposits" name="deposits" placeholder="Select a member..." class="has-prefix" min="0" step="100" readonly>
+        <div class="input-line"></div>
+    </div>
+</div>
                         </div>
                     </div>
 
@@ -371,10 +375,12 @@
     const idNoInput = document.getElementById('id_number');
     const employerInput = document.getElementById('employer');
 
+    // Formats numbers to Kenyan Shillings standard
     function fmt(n) {
         return 'KES ' + Number(n).toLocaleString('en-KE');
     }
 
+    // Updates the live financial summary panel
     function updateFinancials() {
         const g = parseFloat(amtInput.value) || 0;
         const d = parseFloat(depInput.value) || 0;
@@ -387,6 +393,7 @@
             if (g > 0 && d > 0) {
                 const pct = ((d / g) * 100).toFixed(1);
                 finC.textContent = pct + '%';
+                // Green if fully covered, red if insufficient
                 finC.style.color = d >= g ? '#4A9B7F' : '#C0624A';
             } else {
                 finC.textContent = '—';
@@ -398,15 +405,38 @@
 
     memberSelect.addEventListener('change', function() {
         const selected = this.options[this.selectedIndex];
-        
+        const memberNo = this.value;
+
+        // 1. Map identity details from data attributes
         fullNameInput.value = selected.getAttribute('data-fullname') || '';
         idNoInput.value = selected.getAttribute('data-idno') || '';
         employerInput.value = selected.getAttribute('data-employer') || '';
 
-        // Optional: Lock fields to prevent manual overrides of DB records
-        [fullNameInput, idNoInput, employerInput].forEach(el => el.readOnly = true);
+        // 2. Fetch the latest balance (Deposits) from the transactions table
+        if (memberNo) {
+            fetch(`/get_member_balance/${memberNo}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    // Auto-fill the deposit field
+                    depInput.value = data.balance || 0;;
+                    // Recalculate summary with new deposit data
+                    updateFinancials();
+                })
+                .catch(err => {
+                    console.error("Error fetching balance:", err);
+                    depInput.value = 0;
+                    updateFinancials();
+                });
+        }
+
+        // 3. Lock fields to ensure data integrity from the member table
+        [fullNameInput, idNoInput, employerInput, depInput].forEach(el => el.readOnly = true);
     });
 
+    // Listeners for manual input changes
     amtInput.addEventListener('input', updateFinancials);
     depInput.addEventListener('input', updateFinancials);
 </script>

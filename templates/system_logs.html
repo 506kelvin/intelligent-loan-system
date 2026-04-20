@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrity Dashboard — LoanAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --cream: #F5F0E8; --ink: #1A1612; --gold: #C9A96E; --gold-light: #E8D5B0;
+            --warm-gray: #8C8078; --surface: #FDFAF5; --muted-border: rgba(26,22,18,0.1);
+            --success: #4A9B7F; --danger: #C0624A; --info: #5B7EC9;
+        }
+
+        body {
+            min-height: 100vh; background: var(--surface);
+            font-family: 'DM Sans', sans-serif; color: var(--ink);
+            display: flex; flex-direction: column;
+            position: relative; overflow-x: hidden;
+        }
+
+        body::before {
+            content: ''; position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 65% 40% at 90% 5%, rgba(192,98,74,0.05) 0%, transparent 60%),
+                radial-gradient(ellipse 45% 35% at 5% 90%, rgba(201,169,110,0.04) 0%, transparent 55%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: relative; z-index: 10; background: var(--ink);
+            padding: 0 3rem; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            animation: slideDown 0.7s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        nav::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.4; }
+        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .nav-brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-mark { width: 30px; height: 30px; border: 1.5px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .logo-mark::after { content: ''; width: 9px; height: 9px; background: var(--gold); border-radius: 50%; }
+        .brand-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--cream); letter-spacing: 0.05em; }
+        .brand-name span { color: var(--gold); }
+
+        .nav-right { display: flex; align-items: center; gap: 0.75rem; }
+        .nav-security-badge {
+            display: flex; align-items: center; gap: 0.45rem;
+            padding: 0.3rem 0.85rem;
+            border: 1px solid rgba(192,98,74,0.35); border-radius: 100px;
+            font-size: 0.72rem; font-weight: 500; color: rgba(192,98,74,0.85);
+            letter-spacing: 0.06em; text-transform: uppercase;
+        }
+        .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--danger); animation: pulse 2s infinite; }
+
+        .btn-nav { padding: 0.45rem 1.1rem; background: transparent; border: 1px solid rgba(201,169,110,0.4); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500; color: var(--gold); text-decoration: none; letter-spacing: 0.06em; text-transform: uppercase; transition: background 0.2s, border-color 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+        .btn-nav:hover { background: rgba(201,169,110,0.1); border-color: var(--gold); }
+        .btn-nav svg { width: 13px; height: 13px; }
+
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+
+        /* ── PAGE ── */
+        .page { flex: 1; position: relative; z-index: 1; padding: 3.5rem 2rem 5rem; max-width: 1280px; width: 100%; margin: 0 auto; }
+
+        /* ── HEADER ── */
+        .page-header {
+            display: flex; align-items: flex-end; justify-content: space-between;
+            margin-bottom: 2rem;
+            animation: fadeUp 0.7s 0.2s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .page-eyebrow { font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.16em; color: var(--warm-gray); margin-bottom: 0.6rem; }
+        .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 300; color: var(--ink); line-height: 1.1; }
+        .page-title em { font-style: italic; color: var(--gold); }
+        .divider-gold { width: 36px; height: 2px; background: var(--gold); margin-top: 1rem; }
+
+        .header-stats { display: flex; gap: 1.25rem; align-items: flex-end; }
+        .hstat { text-align: right; }
+        .hstat-value { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 300; color: var(--ink); line-height: 1; }
+        .hstat-value.danger { color: var(--danger); }
+        .hstat-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--warm-gray); margin-top: 0.15rem; }
+        .hstat-sep { width: 1px; height: 44px; background: var(--muted-border); align-self: center; }
+
+        /* ── METRIC CARDS ── */
+        .metrics-row {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 1rem; margin-bottom: 2rem;
+            animation: fadeUp 0.7s 0.3s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .metric-card { background: #fff; border: 1px solid var(--muted-border); border-radius: 12px; padding: 1.25rem 1.5rem; position: relative; overflow: hidden; }
+        .metric-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+        .metric-card.total::before  { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+        .metric-card.ok::before     { background: linear-gradient(90deg, var(--success), #6ec4a8); }
+        .metric-card.danger::before { background: linear-gradient(90deg, var(--danger), #d4836a); }
+        .metric-card.audit::before  { background: linear-gradient(90deg, var(--info), #8aaee8); }
+        .mc-value { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; line-height: 1; }
+        .mc-value.ok     { color: var(--success); }
+        .mc-value.danger { color: var(--danger); }
+        .mc-value.info   { color: var(--info); }
+        .mc-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--warm-gray); margin-top: 0.3rem; }
+        .mc-icon { position: absolute; right: 1.25rem; top: 50%; transform: translateY(-50%); opacity: 0.07; }
+        .mc-icon svg { width: 48px; height: 48px; }
+
+        /* ── SECTION TITLE ── */
+        .section-heading {
+            display: flex; align-items: center; gap: 0.7rem;
+            margin-bottom: 1.1rem;
+            animation: fadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .section-heading-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .section-heading-icon.red  { background: rgba(192,98,74,0.1); }
+        .section-heading-icon.blue { background: rgba(91,126,201,0.1); }
+        .section-heading-icon svg { width: 13px; height: 13px; }
+        .section-heading-icon.red  svg { color: var(--danger); }
+        .section-heading-icon.blue svg { color: var(--info); }
+        .section-heading h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 600; color: var(--ink); }
+        .section-heading .sub { font-size: 0.75rem; color: var(--warm-gray); margin-left: 0.2rem; }
+
+        /* ── TABLE CARD ── */
+        .table-card {
+            background: #fff; border: 1px solid var(--muted-border);
+            border-radius: 14px; overflow: hidden;
+            box-shadow: 0 4px 48px rgba(26,22,18,0.06);
+            position: relative; margin-bottom: 2.5rem;
+            animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .table-card.integrity::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--danger), #d4836a, var(--gold)); }
+        .table-card.audit::before     { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--info), #8aaee8, var(--gold)); }
+        .table-card.integrity { animation-delay: 0.4s; }
+        .table-card.audit     { animation-delay: 0.55s; }
+
+        /* TOOLBAR */
+        .table-toolbar {
+            padding: 1rem 1.75rem; border-bottom: 1px solid var(--muted-border);
+            display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+        }
+        .toolbar-left { display: flex; align-items: center; gap: 0.65rem; }
+        .toolbar-icon { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .toolbar-icon.red  { background: rgba(192,98,74,0.09); }
+        .toolbar-icon.blue { background: rgba(91,126,201,0.09); }
+        .toolbar-icon svg { width: 12px; height: 12px; }
+        .toolbar-icon.red  svg { color: var(--danger); }
+        .toolbar-icon.blue svg { color: var(--info); }
+        .toolbar-title { font-family: 'Cormorant Garamond', serif; font-size: 1.0rem; font-weight: 600; color: var(--ink); }
+
+        .filter-pills { display: flex; gap: 0.4rem; }
+        .fpill { padding: 0.28rem 0.75rem; border-radius: 100px; font-size: 0.7rem; font-weight: 500; cursor: pointer; border: 1px solid var(--muted-border); background: transparent; color: var(--warm-gray); transition: all 0.18s; font-family: 'DM Sans', sans-serif; }
+        .fpill.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+        .fpill.fok.active  { background: var(--success); border-color: var(--success); }
+        .fpill.fbad.active { background: var(--danger);  border-color: var(--danger); }
+
+        .search-wrap { position: relative; }
+        .search-wrap svg { position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; color: rgba(140,128,120,0.5); pointer-events: none; }
+        .search-input { padding: 0.45rem 0.9rem 0.45rem 2rem; background: var(--surface); border: 1px solid rgba(26,22,18,0.12); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; color: var(--ink); outline: none; width: 200px; transition: border-color 0.2s, box-shadow 0.2s; }
+        .search-input::placeholder { color: rgba(140,128,120,0.4); }
+        .search-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,169,110,0.1); background: #fff; }
+
+        /* TABLE */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        thead tr { background: var(--surface); border-bottom: 1px solid var(--muted-border); }
+        thead th { padding: 0.8rem 1.1rem; text-align: left; font-size: 0.65rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.13em; color: var(--warm-gray); white-space: nowrap; }
+
+        tbody tr { border-bottom: 1px solid rgba(26,22,18,0.05); transition: background 0.15s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(201,169,110,0.02); }
+        tbody tr.row-tampered { background: rgba(192,98,74,0.03); }
+        tbody tr.row-tampered:hover { background: rgba(192,98,74,0.06); }
+
+        td { padding: 0.9rem 1.1rem; font-size: 0.835rem; color: var(--ink); vertical-align: middle; }
+
+        .td-id { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; color: var(--warm-gray); }
+        .td-member { font-weight: 500; }
+        .td-date { font-size: 0.78rem; color: var(--warm-gray); white-space: nowrap; }
+        .td-action strong { font-weight: 600; font-size: 0.82rem; }
+
+        /* Status pills */
+        .status-pill { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.27rem 0.7rem; border-radius: 100px; font-size: 0.7rem; font-weight: 500; white-space: nowrap; }
+        .status-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+        .status-pill.ok       { background: rgba(74,155,127,0.1);  color: #3a8a6e; border: 1px solid rgba(74,155,127,0.25); }
+        .status-pill.ok       .status-dot { background: var(--success); }
+        .status-pill.tampered { background: rgba(192,98,74,0.09);  color: #a04a30; border: 1px solid rgba(192,98,74,0.25); }
+        .status-pill.tampered .status-dot { background: var(--danger); animation: pulse 1.5s infinite; }
+
+        /* Hash cells */
+        .hash-cell { font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 0.68rem; letter-spacing: 0.02em; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+        .hash-cell.ok      { color: rgba(74,155,127,0.8); }
+        .hash-cell.bad     { color: rgba(192,98,74,0.9); font-weight: 500; }
+        .hash-cell.null    { color: rgba(140,128,120,0.5); font-style: italic; }
+
+        .hash-row { display: flex; align-items: center; gap: 0.4rem; }
+        .hash-icon { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .hash-icon.ok  { background: rgba(74,155,127,0.12); }
+        .hash-icon.bad { background: rgba(192,98,74,0.1); }
+        .hash-icon svg { width: 9px; height: 9px; }
+        .hash-icon.ok  svg { stroke: var(--success); }
+        .hash-icon.bad svg { stroke: var(--danger); }
+
+        /* Audit value cells */
+        .value-cell { font-size: 0.8rem; color: var(--warm-gray); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .value-cell.dash { opacity: 0.4; }
+
+        /* TABLE FOOTER */
+        .table-footer { padding: 0.85rem 1.75rem; border-top: 1px solid var(--muted-border); background: rgba(26,22,18,0.01); display: flex; align-items: center; justify-content: space-between; }
+        .tf-note { font-size: 0.72rem; color: var(--warm-gray); display: flex; align-items: center; gap: 0.4rem; }
+        .tf-note svg { width: 11px; height: 11px; opacity: 0.5; }
+        .tf-count { font-size: 0.72rem; color: var(--warm-gray); }
+        .tf-count strong { color: var(--ink); }
+
+        /* PAGE FOOTER */
+        footer { position: relative; z-index: 1; padding: 1.5rem 3rem; border-top: 1px solid var(--muted-border); display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--warm-gray); }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 720px) {
+            nav { padding: 0 1.25rem; }
+            .page { padding: 2rem 1rem 3rem; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 1.25rem; }
+            .metrics-row { grid-template-columns: 1fr 1fr; }
+            footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="{{ url_for('dashboard') }}" class="nav-brand">
+            <div class="logo-mark"></div>
+            <span class="brand-name">Loan<span>AI</span></span>
+        </a>
+        <div class="nav-right">
+            <div class="nav-security-badge">
+                <span class="badge-dot"></span>
+                Security Audit
+            </div>
+            <a href="{{ url_for('dashboard') }}" class="btn-nav">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                Dashboard
+            </a>
+        </div>
+    </nav>
+
+    <div class="page">
+
+        <!-- Header -->
+        <div class="page-header">
+            <div>
+                <p class="page-eyebrow">Admin · Security</p>
+                <h1 class="page-title">System Integrity <em>Dashboard</em></h1>
+                <div class="divider-gold"></div>
+            </div>
+            <div class="header-stats">
+                <div class="hstat">
+                    <div class="hstat-value">{{ logs | length }}</div>
+                    <div class="hstat-label">Records Checked</div>
+                </div>
+                <div class="hstat-sep"></div>
+                <div class="hstat">
+                    <div class="hstat-value danger">{{ tampered_count }}</div>
+                    <div class="hstat-label">Violations</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric cards -->
+        <div class="metrics-row">
+            <div class="metric-card total">
+                <div class="mc-value">{{ logs | length }}</div>
+                <div class="mc-label">Total Records Checked</div>
+                <div class="mc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+            </div>
+            <div class="metric-card ok">
+                <div class="mc-value ok" id="mc-ok">—</div>
+                <div class="mc-label">Verified OK</div>
+                <div class="mc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            </div>
+            <div class="metric-card danger">
+                <div class="mc-value danger">{{ tampered_count }}</div>
+                <div class="mc-label">Integrity Violations</div>
+                <div class="mc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path></svg></div>
+            </div>
+        </div>
+
+        <!-- ── INTEGRITY TABLE ── -->
+        <div class="section-heading" style="animation-delay:0.38s;">
+            <div class="section-heading-icon red">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <div>
+                <h2>Integrity Check <span class="sub">· Real-time Hash Verification</span></h2>
+            </div>
+        </div>
+
+        <div class="table-card integrity">
+            <div class="table-toolbar">
+                <div class="toolbar-left">
+                    <div class="toolbar-icon red">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    </div>
+                    <span class="toolbar-title">Hash Verification Log</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+                    <div class="filter-pills" id="integrity-filters">
+                        <button class="fpill active" data-filter="all">All</button>
+                        <button class="fpill fok"  data-filter="ok">✓ OK</button>
+                        <button class="fpill fbad" data-filter="tampered">⚠ Tampered</button>
+                    </div>
+                    <div class="search-wrap">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" class="search-input" id="integrity-search" placeholder="Search…">
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table id="integrity-table">
+                    <thead>
+                        <tr>
+                            <th>Loan ID</th>
+                            <th>Member</th>
+                            <th>Status</th>
+                            <th>Stored Hash</th>
+                            <th>Computed Hash</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        {% set is_ok = log.status == "OK" %}
+                        <tr class="{{ '' if is_ok else 'row-tampered' }}" data-status="{{ 'ok' if is_ok else 'tampered' }}">
+                            <td class="td-id">#{{ log.loan_id }}</td>
+                            <td class="td-member">{{ log.member_number }}</td>
+                            <td>
+                                {% if is_ok %}
+                                <span class="status-pill ok"><span class="status-dot"></span>Verified</span>
+                                {% else %}
+                                <span class="status-pill tampered"><span class="status-dot"></span>Tampered</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="hash-row">
+                                    <div class="hash-icon {{ 'ok' if is_ok else 'bad' }}">
+                                        {% if is_ok %}
+                                        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                        {% else %}
+                                        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                        {% endif %}
+                                    </div>
+                                    {% if log.stored_hash %}
+                                    <span class="hash-cell {{ 'ok' if is_ok else 'bad' }}" title="{{ log.stored_hash }}">{{ log.stored_hash[:20] }}…</span>
+                                    {% else %}
+                                    <span class="hash-cell null">NULL</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="hash-cell {{ 'ok' if is_ok else 'bad' }}" title="{{ log.new_hash }}">{{ log.new_hash[:20] }}…</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-footer">
+                <p class="tf-note">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    Hover hash to view full value
+                </p>
+                <span class="tf-count">Showing <strong id="integrity-count">{{ logs | length }}</strong> records</span>
+            </div>
+        </div>
+
+        <!-- ── AUDIT TRAIL TABLE ── -->
+        <div class="section-heading" style="animation-delay:0.5s;">
+            <div class="section-heading-icon blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            </div>
+            <div>
+                <h2>Audit Trail <span class="sub">· Authorized Changes</span></h2>
+            </div>
+        </div>
+
+        <div class="table-card audit">
+            <div class="table-toolbar">
+                <div class="toolbar-left">
+                    <div class="toolbar-icon blue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    </div>
+                    <span class="toolbar-title">Change Log</span>
+                </div>
+                <div class="search-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" class="search-input" id="audit-search" placeholder="Search…">
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table id="audit-table">
+                    <thead>
+                        <tr>
+                            <th>Loan ID</th>
+                            <th>Action</th>
+                            <th>Authorized By</th>
+                            <th>Old Value</th>
+                            <th>New Value</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in audit_logs %}
+                        <tr>
+                            <td class="td-id">#{{ log.loan_id }}</td>
+                            <td class="td-action"><strong>{{ log.action }}</strong></td>
+                            <td class="td-member">{{ log.user_name or "System" }}</td>
+                            <td><span class="value-cell {{ 'dash' if not log.old_value else '' }}" title="{{ log.old_value or '' }}">{{ log.old_value or "—" }}</span></td>
+                            <td><span class="value-cell {{ 'dash' if not log.new_value else '' }}" title="{{ log.new_value or '' }}">{{ log.new_value or "—" }}</span></td>
+                            <td class="td-date">{{ log.timestamp }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-footer">
+                <p class="tf-note">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    All changes logged under authorized user credentials
+                </p>
+                <span class="tf-count">Showing <strong id="audit-count">{{ audit_logs | length }}</strong> entries</span>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <span>© 2025 LoanAI · All rights reserved</span>
+        <span>System Integrity Dashboard</span>
+    </footer>
+
+    <script>
+        // Tally integrity rows
+        const iRows = Array.from(document.querySelectorAll('#integrity-table tbody tr'));
+        let okCount = 0;
+        iRows.forEach(r => { if (r.dataset.status === 'ok') okCount++; });
+        document.getElementById('mc-ok').textContent = okCount;
+
+        // Integrity filter + search
+        const iBtns   = document.querySelectorAll('#integrity-filters .fpill');
+        const iSearch = document.getElementById('integrity-search');
+        const iCount  = document.getElementById('integrity-count');
+        let iFilter = 'all';
+
+        function filterIntegrity() {
+            const q = iSearch.value.toLowerCase();
+            let vis = 0;
+            iRows.forEach(r => {
+                const show = (iFilter === 'all' || r.dataset.status === iFilter) && r.textContent.toLowerCase().includes(q);
+                r.style.display = show ? '' : 'none';
+                if (show) vis++;
+            });
+            iCount.textContent = vis;
+        }
+
+        iBtns.forEach(b => {
+            b.addEventListener('click', () => {
+                iBtns.forEach(x => x.classList.remove('active'));
+                b.classList.add('active');
+                iFilter = b.dataset.filter;
+                filterIntegrity();
+            });
+        });
+        iSearch.addEventListener('input', filterIntegrity);
+
+        // Audit search
+        const aRows   = Array.from(document.querySelectorAll('#audit-table tbody tr'));
+        const aSearch = document.getElementById('audit-search');
+        const aCount  = document.getElementById('audit-count');
+
+        aSearch.addEventListener('input', () => {
+            const q = aSearch.value.toLowerCase();
+            let vis = 0;
+            aRows.forEach(r => {
+                const show = r.textContent.toLowerCase().includes(q);
+                r.style.display = show ? '' : 'none';
+                if (show) vis++;
+            });
+            aCount.textContent = vis;
+        });
+    </script>
+
+</body>
+</html>

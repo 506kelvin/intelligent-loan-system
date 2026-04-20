@@ -235,11 +235,11 @@
                 <div class="action-card-title">Manage Users</div>
                 <div class="action-card-sub">Admin panel <span class="arrow">→</span></div>
             </a>
-            <a href="#" class="action-card admin">
-                <div class="action-icon">📋</div>
-                <div class="action-card-title">System Logs</div>
-                <div class="action-card-sub">View activity <span class="arrow">→</span></div>
-            </a>
+            <a href="{{ url_for('system_logs') }}" class="action-card admin" style="display:block;">
+    <div class="action-icon">📋</div>
+    <div class="action-card-title">System Logs</div>
+    <div class="action-card-sub">View activity <span class="arrow">→</span></div>
+</a>
             {% endif %}
 
             <a href="{{ url_for('view_loans') }}" class="action-card">
